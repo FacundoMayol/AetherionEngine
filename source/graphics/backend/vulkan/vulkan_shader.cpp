@@ -1,0 +1,52 @@
+#include "vulkan_shader.hpp"
+
+#include "vulkan_device.hpp"
+
+namespace aetherion {
+    VulkanShader::VulkanShader(VulkanDevice& device, const ShaderDescription& description)
+        : device_(&device) {
+        auto shaderModuleCreateInfo
+            = vk::ShaderModuleCreateInfo()
+                  .setCodeSize(description.code.size())
+                  .setPCode(reinterpret_cast<const uint32_t*>(description.code.data()));
+
+        shaderModule_ = device_->getVkDevice().createShaderModule(shaderModuleCreateInfo);
+    }
+
+    VulkanShader::VulkanShader(VulkanDevice& device, vk::ShaderModule shaderModule)
+        : device_(&device), shaderModule_(shaderModule) {}
+
+    VulkanShader::~VulkanShader() noexcept { clear(); }
+
+    VulkanShader::VulkanShader(VulkanShader&& other) noexcept
+        : IShader(std::move(other)), device_(other.device_), shaderModule_(other.shaderModule_) {
+        other.device_ = nullptr;
+        other.shaderModule_ = nullptr;
+    }
+
+    VulkanShader& VulkanShader::operator=(VulkanShader&& other) noexcept {
+        if (this != &other) {
+            clear();
+
+            IShader::operator=(std::move(other));
+            device_ = other.device_;
+            shaderModule_ = other.shaderModule_;
+
+            other.release();
+        }
+        return *this;
+    }
+
+    void VulkanShader::clear() noexcept {
+        if (shaderModule_ && device_) {
+            device_->getVkDevice().destroyShaderModule(shaderModule_);
+            shaderModule_ = nullptr;
+        }
+        device_ = nullptr;
+    }
+
+    void VulkanShader::release() noexcept {
+        shaderModule_ = nullptr;
+        device_ = nullptr;
+    }
+}  // namespace aetherion
