@@ -9,9 +9,10 @@
 
 namespace aetherion {
     GLFWWindow::GLFWWindow(GLFWWindowManager& manager, const WindowDescription& description)
-        : manager_(&manager) {
-        window_ = glfwCreateWindow(description.extent.width, description.extent.height,
-                                   description.title.c_str(), nullptr, nullptr);
+        : manager_(&manager),
+          window_(glfwCreateWindow(static_cast<int>(description.extent.width),
+                                   static_cast<int>(description.extent.height),
+                                   description.title.c_str(), nullptr, nullptr)) {
         if (!window_) {
             throw std::runtime_error("Failed to create GLFW window");
         }
@@ -59,7 +60,7 @@ namespace aetherion {
     }
 
     vk::SurfaceKHR GLFWWindow::createVulkanSurface(vk::Instance instance) const {
-        VkSurfaceKHR surface;
+        VkSurfaceKHR surface = nullptr;
         if (glfwCreateWindowSurface(static_cast<VkInstance>(instance), window_, nullptr, &surface)
             != VK_SUCCESS) {
             throw std::runtime_error("Failed to create Vulkan surface for GLFW window.");

@@ -13,7 +13,7 @@ namespace aetherion {
         VulkanQueue() = delete;
         VulkanQueue(VulkanDevice& device, const QueueDescription& description);
         VulkanQueue(vk::Device device, vk::Queue queue);
-        virtual ~VulkanQueue() noexcept override;
+        ~VulkanQueue() noexcept override;
 
         VulkanQueue(const VulkanQueue&) = delete;
         VulkanQueue& operator=(const VulkanQueue&) = delete;
@@ -21,13 +21,13 @@ namespace aetherion {
         VulkanQueue(VulkanQueue&&) noexcept;
         VulkanQueue& operator=(VulkanQueue&&) noexcept;
 
-        virtual void submit(std::span<QueueSubmitDescription> submitDescriptions,
-                            IGPUFence* fence) override;
+        void submit(std::span<QueueSubmitDescription> submitDescriptions,
+                    IGPUFence* fence) override;
 
-        virtual std::pair<QueuePresentResultCode, std::vector<QueuePresentResultCode>> present(
+        std::pair<QueuePresentResultCode, std::vector<QueuePresentResultCode>> present(
             const QueuePresentDescription& presentDescription) override;
 
-        virtual void waitIdle() override;
+        void waitIdle() override;
 
         inline vk::Queue getVkQueue() const { return queue_; }
 

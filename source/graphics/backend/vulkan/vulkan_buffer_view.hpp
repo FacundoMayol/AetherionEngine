@@ -14,7 +14,7 @@ namespace aetherion {
         VulkanBufferView() = delete;
         VulkanBufferView(VulkanDevice& device, const BufferViewDescription& description);
         VulkanBufferView(vk::Device device, vk::BufferView bufferView);
-        virtual ~VulkanBufferView() noexcept override;
+        ~VulkanBufferView() noexcept override;
 
         VulkanBufferView(const VulkanBufferView&) = delete;
         VulkanBufferView& operator=(const VulkanBufferView&) = delete;

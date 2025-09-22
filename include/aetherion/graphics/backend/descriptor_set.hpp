@@ -58,7 +58,7 @@ namespace aetherion {
 
     class IDescriptorSet : public IResource {
       public:
-        virtual ~IDescriptorSet() = 0;
+        ~IDescriptorSet() override = 0;
 
         IDescriptorSet(const IDescriptorSet&) = delete;
         IDescriptorSet& operator=(const IDescriptorSet&) = delete;
@@ -71,7 +71,7 @@ namespace aetherion {
 
     class IDescriptorPool : public IResource {
       public:
-        virtual ~IDescriptorPool() = 0;
+        ~IDescriptorPool() override = 0;
 
         IDescriptorPool(const IDescriptorPool&) = delete;
         IDescriptorPool& operator=(const IDescriptorPool&) = delete;

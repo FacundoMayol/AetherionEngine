@@ -292,8 +292,8 @@ namespace aetherion {
     void VulkanCommandBuffer::drawIndexed(uint32_t indexCount, uint32_t instanceCount,
                                           uint32_t firstIndex, uint32_t baseVertex,
                                           uint32_t firstInstance) {
-        commandBuffer_.drawIndexed(indexCount, instanceCount, firstIndex, baseVertex,
-                                   firstInstance);
+        commandBuffer_.drawIndexed(indexCount, instanceCount, firstIndex,
+                                   static_cast<int32_t>(baseVertex), firstInstance);
     }
 
     void VulkanCommandBuffer::dispatchCompute(uint32_t x, uint32_t y, uint32_t z) {
@@ -324,20 +324,26 @@ namespace aetherion {
         std::vector<vk::ImageSubresourceRange> vkRanges;
         vkRanges.reserve(ranges.size());
 
+        // NOTE: vk::ClearValue is a naked union, so the warning about accessing inactive union
+        // members is suppressed.
         if (clearValue.index() == 0) {
             // Color clear
             for (const auto& range : ranges)
                 vkRanges.push_back(
                     toVkImageSubresourceRange({.aspectMask = ImageAspect::Color, .range = range}));
-            commandBuffer_.clearColorImage(vkImage.getVkImage(), toVkImageLayout(layout),
-                                           vkClearValue.color, vkRanges);
+            commandBuffer_.clearColorImage(
+                vkImage.getVkImage(), toVkImageLayout(layout),
+                vkClearValue.color,  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                vkRanges);
         } else if (clearValue.index() == 1) {
             // Depth-stencil clear
             for (const auto& range : ranges)
                 vkRanges.push_back(
                     toVkImageSubresourceRange({.aspectMask = ImageAspect::Depth, .range = range}));
-            commandBuffer_.clearDepthStencilImage(vkImage.getVkImage(), toVkImageLayout(layout),
-                                                  vkClearValue.depthStencil, vkRanges);
+            commandBuffer_.clearDepthStencilImage(
+                vkImage.getVkImage(), toVkImageLayout(layout),
+                vkClearValue.depthStencil,  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                vkRanges);
         } else {
             throw std::invalid_argument("Invalid ClearValue variant");
         }
@@ -468,14 +474,13 @@ namespace aetherion {
 
     VulkanCommandPool::VulkanCommandPool(VulkanDevice& device,
                                          const CommandPoolDescription& description)
-        : device_(device.getVkDevice()) {
+        : device_(device.getVkDevice()),
+          freeCommandBufferSupport_(
+              description.flags.contains(CommandPoolBehavior::ResetCommandBuffer)) {
         commandPool_
             = device_.createCommandPool(vk::CommandPoolCreateInfo()
                                             .setFlags(toVkCommandPoolCreateFlags(description.flags))
                                             .setQueueFamilyIndex(description.queueFamilyIndex));
-
-        freeCommandBufferSupport_
-            = description.flags.contains(CommandPoolBehavior::ResetCommandBuffer);
     }
 
     VulkanCommandPool::VulkanCommandPool(vk::Device device, vk::CommandPool commandPool,

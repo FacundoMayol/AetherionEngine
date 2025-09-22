@@ -14,7 +14,7 @@ namespace aetherion {
         VulkanImageView() = delete;
         VulkanImageView(VulkanDevice& device, const ImageViewDescription& description);
         VulkanImageView(vk::Device device, vk::ImageView imageView);
-        virtual ~VulkanImageView() noexcept override;
+        ~VulkanImageView() noexcept override;
 
         VulkanImageView(const VulkanImageView&) = delete;
         VulkanImageView& operator=(const VulkanImageView&) = delete;

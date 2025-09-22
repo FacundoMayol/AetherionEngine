@@ -85,13 +85,13 @@ namespace aetherion {
     };
 
     struct DescriptorWriteDescriptorImageDescription {
-        IImageView* imageView;
-        ISampler* sampler;
+        IImageView* imageView{};
+        ISampler* sampler{};
         ImageLayout imageLayout = ImageLayout::Undefined;
     };
 
     struct DescriptorWriteDescriptorBufferDescription {
-        IBuffer* buffer;
+        IBuffer* buffer{};
         size_t offset = 0;
         size_t range = WHOLE_BUFFER_SIZE;
     };

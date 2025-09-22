@@ -15,7 +15,7 @@ namespace aetherion {
         VulkanSurface() = delete;
         VulkanSurface(VulkanDriver& driver, const SurfaceDescription& description);
         VulkanSurface(vk::Instance instance, vk::SurfaceKHR surface);
-        virtual ~VulkanSurface() noexcept override;
+        ~VulkanSurface() noexcept override;
 
         VulkanSurface(const VulkanSurface&) = delete;
         VulkanSurface& operator=(const VulkanSurface&) = delete;
@@ -23,7 +23,7 @@ namespace aetherion {
         VulkanSurface(VulkanSurface&&) noexcept;
         VulkanSurface& operator=(VulkanSurface&&) noexcept;
 
-        virtual std::vector<SurfaceFormat> getSupportedFormats(
+        std::vector<SurfaceFormat> getSupportedFormats(
             const IPhysicalDevice& physicalDevice) const override;
 
         inline vk::SurfaceKHR getVkSurface() const { return surface_; }

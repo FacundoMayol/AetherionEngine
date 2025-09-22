@@ -18,7 +18,7 @@ namespace aetherion {
         VulkanPhysicalDevice(VulkanDriver& driver, const PhysicalDeviceDescription& description);
         VulkanPhysicalDevice(vk::Instance instance, vkb::PhysicalDevice builderPhysicalDevice,
                              vk::PhysicalDevice physicalDevice);
-        virtual ~VulkanPhysicalDevice() noexcept override;
+        ~VulkanPhysicalDevice() noexcept override;
 
         VulkanPhysicalDevice(const VulkanPhysicalDevice&) = delete;
         VulkanPhysicalDevice& operator=(const VulkanPhysicalDevice&) = delete;
@@ -26,8 +26,7 @@ namespace aetherion {
         VulkanPhysicalDevice(VulkanPhysicalDevice&&) noexcept;
         VulkanPhysicalDevice& operator=(VulkanPhysicalDevice&&) noexcept;
 
-        virtual const QueueFamilyProperties& getQueueFamilyProperties(
-            uint32_t familyIndex) const override;
+        const QueueFamilyProperties& getQueueFamilyProperties(uint32_t familyIndex) const override;
 
         inline vkb::PhysicalDevice getVkBuilderPhysicalDevice() const {
             return builderPhysicalDevice_;
@@ -52,88 +51,84 @@ namespace aetherion {
         VulkanDevice(VulkanDriver& driver, const DeviceDescription& description);
         VulkanDevice(vk::Instance instance, vk::PhysicalDevice physicalDevice,
                      vkb::Device builderDevice, vk::Device device, vma::Allocator allocator);
-        virtual ~VulkanDevice() noexcept override;
+        ~VulkanDevice() noexcept override;
 
         VulkanDevice(const VulkanDevice&) = delete;
         VulkanDevice& operator=(const VulkanDevice&) = delete;
         VulkanDevice(VulkanDevice&&) noexcept;
         VulkanDevice& operator=(VulkanDevice&&) noexcept;
 
-        virtual void waitIdle() override;
+        void waitIdle() override;
 
-        virtual std::unique_ptr<ICommandPool> createCommandPool(
+        std::unique_ptr<ICommandPool> createCommandPool(
             const CommandPoolDescription& description) override;
 
-        virtual std::unique_ptr<ICommandBuffer> allocateCommandBuffer(
+        std::unique_ptr<ICommandBuffer> allocateCommandBuffer(
             ICommandPool& pool, const CommandBufferDescription& description) override;
-        virtual std::vector<std::unique_ptr<ICommandBuffer>> allocateCommandBuffers(
+        std::vector<std::unique_ptr<ICommandBuffer>> allocateCommandBuffers(
             ICommandPool& pool, uint32_t count,
             const CommandBufferDescription& description) override;
 
-        virtual void freeCommandBuffers(
+        void freeCommandBuffers(
             ICommandPool& pool,
             std::span<std::reference_wrapper<ICommandBuffer>> commandBuffers) override;
 
-        virtual std::unique_ptr<IBuffer> createBuffer(
-            const BufferDescription& description) override;
+        std::unique_ptr<IBuffer> createBuffer(const BufferDescription& description) override;
 
-        virtual std::unique_ptr<IBufferView> createBufferView(
+        std::unique_ptr<IBufferView> createBufferView(
             const BufferViewDescription& description) override;
 
-        virtual std::unique_ptr<IImage> createImage(const ImageDescription& description) override;
+        std::unique_ptr<IImage> createImage(const ImageDescription& description) override;
 
-        virtual std::unique_ptr<IImageView> createImageView(
+        std::unique_ptr<IImageView> createImageView(
             const ImageViewDescription& description) override;
 
-        virtual std::unique_ptr<ISampler> createSampler(
-            const SamplerDescription& description) override;
+        std::unique_ptr<ISampler> createSampler(const SamplerDescription& description) override;
 
-        virtual std::unique_ptr<IShader> createShader(
-            const ShaderDescription& description) override;
+        std::unique_ptr<IShader> createShader(const ShaderDescription& description) override;
 
-        virtual std::unique_ptr<IPipelineLayout> createPipelineLayout(
+        std::unique_ptr<IPipelineLayout> createPipelineLayout(
             const PipelineLayoutDescription& description) override;
 
-        virtual std::unique_ptr<IPipeline> createComputePipeline(
+        std::unique_ptr<IPipeline> createComputePipeline(
             const ComputePipelineDescription& description) override;
 
-        virtual std::unique_ptr<IPipeline> createGraphicsPipeline(
+        std::unique_ptr<IPipeline> createGraphicsPipeline(
             const GraphicsPipelineDescription& description) override;
 
-        virtual std::unique_ptr<IDescriptorSetLayout> createDescriptorSetLayout(
+        std::unique_ptr<IDescriptorSetLayout> createDescriptorSetLayout(
             const DescriptorSetLayoutDescription& description) override;
 
-        virtual std::unique_ptr<IDescriptorPool> createDescriptorPool(
+        std::unique_ptr<IDescriptorPool> createDescriptorPool(
             const DescriptorPoolDescription& description) override;
 
-        virtual std::unique_ptr<IPushConstantRange> createPushConstantRange(
+        std::unique_ptr<IPushConstantRange> createPushConstantRange(
             const PushConstantRangeDescription& description) override;
 
-        virtual std::unique_ptr<ISwapchain> createSwapchain(
+        std::unique_ptr<ISwapchain> createSwapchain(
             const SwapchainDescription& description) override;
 
-        virtual std::unique_ptr<IGPUFence> createGPUFence(
-            const GPUFenceDescription& description) override;
+        std::unique_ptr<IGPUFence> createGPUFence(const GPUFenceDescription& description) override;
 
-        virtual std::unique_ptr<IGPUBinarySemaphore> createGPUBinarySemaphore(
+        std::unique_ptr<IGPUBinarySemaphore> createGPUBinarySemaphore(
             const GPUBinarySemaphoreDescription& description) override;
 
-        virtual std::unique_ptr<IGPUTimelineSemaphore> createGPUTimelineSemaphore(
+        std::unique_ptr<IGPUTimelineSemaphore> createGPUTimelineSemaphore(
             const GPUTimelineSemaphoreDescription& description) override;
 
-        virtual std::unique_ptr<IQueue> getQueue(const QueueDescription& description) override;
+        std::unique_ptr<IQueue> getQueue(const QueueDescription& description) override;
 
-        virtual std::unique_ptr<IDescriptorSet> allocateDescriptorSet(
+        std::unique_ptr<IDescriptorSet> allocateDescriptorSet(
             IDescriptorPool& pool, const DescriptorSetDescription& description) override;
 
-        virtual std::vector<std::unique_ptr<IDescriptorSet>> allocateDescriptorSets(
+        std::vector<std::unique_ptr<IDescriptorSet>> allocateDescriptorSets(
             IDescriptorPool& pool, std::span<const DescriptorSetDescription> descriptions) override;
 
-        virtual void freeDescriptorSets(
+        void freeDescriptorSets(
             IDescriptorPool& pool,
             std::span<std::reference_wrapper<IDescriptorSet>> descriptorSets) override;
 
-        virtual void updateDescriptorSets(
+        void updateDescriptorSets(
             std::span<const DescriptorWriteDescription> descriptorWrites,
             std::span<const DescriptorCopyDescription> descriptorCopies) override;
 

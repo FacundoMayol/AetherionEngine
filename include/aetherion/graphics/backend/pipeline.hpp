@@ -101,7 +101,7 @@ namespace aetherion {
     };
 
     struct ComputePipelineDescription {
-        class IPipelineLayout* layout;
+        class IPipelineLayout* layout{};
         ShaderModuleStageDescription computeShader;
     };
 
@@ -118,7 +118,7 @@ namespace aetherion {
 
     class IPipelineLayout : public IResource {
       public:
-        virtual ~IPipelineLayout() = 0;
+        ~IPipelineLayout() override = 0;
 
         IPipelineLayout(const IPipelineLayout&) = delete;
         IPipelineLayout& operator=(const IPipelineLayout&) = delete;
@@ -131,7 +131,7 @@ namespace aetherion {
 
     class IPipeline : public IResource {
       public:
-        virtual ~IPipeline() = 0;
+        ~IPipeline() override = 0;
 
         IPipeline(const IPipeline&) = delete;
         IPipeline& operator=(const IPipeline&) = delete;

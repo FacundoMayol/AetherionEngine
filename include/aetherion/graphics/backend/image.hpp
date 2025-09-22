@@ -27,7 +27,7 @@ namespace aetherion {
 
     class IImage : public IResource {
       public:
-        virtual ~IImage() = 0;
+        ~IImage() override = 0;
 
         IImage(const IImage&) = delete;
         IImage& operator=(const IImage&) = delete;

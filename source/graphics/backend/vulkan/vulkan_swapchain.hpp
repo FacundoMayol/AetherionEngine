@@ -17,7 +17,7 @@ namespace aetherion {
         VulkanSwapchain() = delete;
         VulkanSwapchain(VulkanDevice& device, const SwapchainDescription& description);
         VulkanSwapchain(vk::Device device, vkb::Swapchain swapchain);
-        virtual ~VulkanSwapchain() noexcept override;
+        ~VulkanSwapchain() noexcept override;
 
         VulkanSwapchain(const VulkanSwapchain&) = delete;
         VulkanSwapchain& operator=(const VulkanSwapchain&) = delete;
@@ -25,12 +25,12 @@ namespace aetherion {
         VulkanSwapchain(VulkanSwapchain&&) noexcept;
         VulkanSwapchain& operator=(VulkanSwapchain&&) noexcept;
 
-        virtual ResultValue<SwapchainAcquireResultCode, uint32_t> acquireNextImage(
+        ResultValue<SwapchainAcquireResultCode, uint32_t> acquireNextImage(
             uint64_t timeout, IGPUBinarySemaphore& semaphore, IGPUFence& fence) override;
 
-        virtual uint32_t getImageCount() const override;
+        uint32_t getImageCount() const override;
 
-        virtual IImage& getImage(uint32_t index) override;
+        IImage& getImage(uint32_t index) override;
 
         inline vk::SwapchainKHR getVkSwapchain() const { return swapchain_; }
 

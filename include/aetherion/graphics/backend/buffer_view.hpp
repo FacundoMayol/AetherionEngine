@@ -8,7 +8,7 @@ namespace aetherion {
     class IBuffer;
 
     struct BufferViewDescription {
-        IBuffer* buffer;
+        IBuffer* buffer{};
         Format format = Format::Undefined;  // NOTE: Ignored if buffer is not a texel buffer.
         uint32_t offset = 0;
         uint32_t range = 0;
@@ -16,7 +16,7 @@ namespace aetherion {
 
     class IBufferView : public IResource {
       public:
-        virtual ~IBufferView() = 0;
+        ~IBufferView() override = 0;
 
         IBufferView(const IBufferView&) = delete;
         IBufferView& operator=(const IBufferView&) = delete;

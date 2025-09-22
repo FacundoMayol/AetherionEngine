@@ -19,7 +19,7 @@ namespace aetherion {
 
     class IGPUFence : public IResource {
       public:
-        virtual ~IGPUFence() = 0;
+        ~IGPUFence() override = 0;
 
         IGPUFence(const IGPUFence&) = delete;
         IGPUFence& operator=(const IGPUFence&) = delete;
@@ -36,7 +36,7 @@ namespace aetherion {
 
     class IGPUBinarySemaphore : public IResource {
       public:
-        virtual ~IGPUBinarySemaphore() = 0;
+        ~IGPUBinarySemaphore() override = 0;
 
         IGPUBinarySemaphore(const IGPUBinarySemaphore&) = delete;
         IGPUBinarySemaphore& operator=(const IGPUBinarySemaphore&) = delete;
@@ -49,7 +49,7 @@ namespace aetherion {
 
     class IGPUTimelineSemaphore : public IResource {
       public:
-        virtual ~IGPUTimelineSemaphore() = 0;
+        ~IGPUTimelineSemaphore() override = 0;
 
         IGPUTimelineSemaphore(const IGPUTimelineSemaphore&) = delete;
         IGPUTimelineSemaphore& operator=(const IGPUTimelineSemaphore&) = delete;

@@ -13,7 +13,7 @@ namespace aetherion {
         VulkanShader() = delete;
         VulkanShader(VulkanDevice& device, const ShaderDescription& description);
         VulkanShader(vk::Device device, vk::ShaderModule shaderModule);
-        virtual ~VulkanShader() noexcept override;
+        ~VulkanShader() noexcept override;
 
         VulkanShader(const VulkanShader&) = delete;
         VulkanShader& operator=(const VulkanShader&) = delete;

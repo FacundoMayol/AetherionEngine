@@ -8,7 +8,7 @@ namespace aetherion {
     class IImage;
 
     struct ImageViewDescription {
-        IImage* image;
+        IImage* image{};
         Format format = Format::Undefined;
         ImageViewType viewType = ImageViewType::Tex2d;
         struct SwizzleDescription {
@@ -22,7 +22,7 @@ namespace aetherion {
 
     class IImageView : public IResource {
       public:
-        virtual ~IImageView() = 0;
+        ~IImageView() override = 0;
 
         IImageView(const IImageView&) = delete;
         IImageView& operator=(const IImageView&) = delete;

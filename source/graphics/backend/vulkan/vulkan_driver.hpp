@@ -20,14 +20,13 @@ namespace aetherion {
         VulkanDriver(VulkanDriver&&) noexcept;
         VulkanDriver& operator=(VulkanDriver&&) noexcept;
 
-        virtual std::unique_ptr<IPhysicalDevice> createPhysicalDevice(
+        std::unique_ptr<IPhysicalDevice> createPhysicalDevice(
             const PhysicalDeviceDescription& description) override;
 
-        virtual std::unique_ptr<IRenderDevice> createDevice(
+        std::unique_ptr<IRenderDevice> createDevice(
             const DeviceDescription& deviceDescription) override;
 
-        virtual std::unique_ptr<ISurface> createSurface(
-            const SurfaceDescription& description) override;
+        std::unique_ptr<ISurface> createSurface(const SurfaceDescription& description) override;
 
         inline vkb::Instance getVkBuilderInstance() const { return builderInstance_; }
         inline vk::Instance getVkInstance() const { return instance_; }

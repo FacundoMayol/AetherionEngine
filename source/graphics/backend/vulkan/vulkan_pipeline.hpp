@@ -13,7 +13,7 @@ namespace aetherion {
         VulkanPipelineLayout() = delete;
         VulkanPipelineLayout(VulkanDevice& device, const PipelineLayoutDescription& description);
         VulkanPipelineLayout(vk::Device device, vk::PipelineLayout pipelineLayout);
-        virtual ~VulkanPipelineLayout() noexcept override;
+        ~VulkanPipelineLayout() noexcept override;
 
         VulkanPipelineLayout(const VulkanPipelineLayout&) = delete;
         VulkanPipelineLayout& operator=(const VulkanPipelineLayout&) = delete;
@@ -38,7 +38,7 @@ namespace aetherion {
         VulkanPipeline(VulkanDevice& device, const ComputePipelineDescription& description);
         VulkanPipeline(VulkanDevice& device, const GraphicsPipelineDescription& description);
         VulkanPipeline(vk::Device device, vk::Pipeline pipeline, PipelineBindPoint pipelineType);
-        virtual ~VulkanPipeline() noexcept override;
+        ~VulkanPipeline() noexcept override;
 
         VulkanPipeline(const VulkanPipeline&) = delete;
         VulkanPipeline& operator=(const VulkanPipeline&) = delete;
@@ -46,14 +46,14 @@ namespace aetherion {
         VulkanPipeline(VulkanPipeline&&) noexcept;
         VulkanPipeline& operator=(VulkanPipeline&&) noexcept;
 
-        inline virtual PipelineBindPoint getPipelineType() const override { return pipelineType_; }
+        inline PipelineBindPoint getPipelineType() const override { return pipelineType_; }
 
         inline vk::Pipeline getVkPipeline() const { return pipeline_; }
 
         void clear() noexcept;
         void release() noexcept;
 
-      protected:
+      private:
         vk::Device device_;
 
         vk::Pipeline pipeline_;

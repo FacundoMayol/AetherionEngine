@@ -1,0 +1,4 @@
+Checks: >
+  cppcoreguidelines-*
+WarningsAsErrors: ''
+CheckOptions: []

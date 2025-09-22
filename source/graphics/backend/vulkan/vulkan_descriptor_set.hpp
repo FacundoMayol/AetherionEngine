@@ -17,7 +17,7 @@ namespace aetherion {
         VulkanDescriptorSetLayout(VulkanDevice& device,
                                   const DescriptorSetLayoutDescription& description);
         VulkanDescriptorSetLayout(vk::Device device, vk::DescriptorSetLayout descriptorSetLayout);
-        virtual ~VulkanDescriptorSetLayout() noexcept override;
+        ~VulkanDescriptorSetLayout() noexcept override;
 
         VulkanDescriptorSetLayout(const VulkanDescriptorSetLayout&) = delete;
         VulkanDescriptorSetLayout& operator=(const VulkanDescriptorSetLayout&) = delete;
@@ -55,7 +55,7 @@ namespace aetherion {
                             const DescriptorSetDescription& description);
         VulkanDescriptorSet(vk::Device device, vk::DescriptorPool pool,
                             vk::DescriptorSet descriptorSet, bool shouldFree = false);
-        virtual ~VulkanDescriptorSet() noexcept override;
+        ~VulkanDescriptorSet() noexcept override;
 
         VulkanDescriptorSet(const VulkanDescriptorSet&) = delete;
         VulkanDescriptorSet& operator=(const VulkanDescriptorSet&) = delete;
@@ -92,7 +92,7 @@ namespace aetherion {
         VulkanDescriptorPool(VulkanDevice& device, const DescriptorPoolDescription& description);
         VulkanDescriptorPool(vk::Device device, vk::DescriptorPool descriptorPool,
                              bool freeDescriptorSetSupport);
-        virtual ~VulkanDescriptorPool() noexcept override;
+        ~VulkanDescriptorPool() noexcept override;
 
         VulkanDescriptorPool(const VulkanDescriptorPool&) = delete;
         VulkanDescriptorPool& operator=(const VulkanDescriptorPool&) = delete;
@@ -100,7 +100,7 @@ namespace aetherion {
         VulkanDescriptorPool(VulkanDescriptorPool&&) noexcept;
         VulkanDescriptorPool& operator=(VulkanDescriptorPool&&) noexcept;
 
-        virtual void reset() override;
+        void reset() override;
 
         inline vk::DescriptorPool getVkDescriptorPool() const { return descriptorPool_; }
 
@@ -123,7 +123,7 @@ namespace aetherion {
         VulkanPushConstantRange(VulkanDevice& device,
                                 const PushConstantRangeDescription& description);
         VulkanPushConstantRange(vk::Device device, vk::PushConstantRange pushConstantRange);
-        virtual ~VulkanPushConstantRange() noexcept override;
+        ~VulkanPushConstantRange() noexcept override;
 
         VulkanPushConstantRange(const VulkanPushConstantRange&) = delete;
         VulkanPushConstantRange& operator=(const VulkanPushConstantRange&) = delete;

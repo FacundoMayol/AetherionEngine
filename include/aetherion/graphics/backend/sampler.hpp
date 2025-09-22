@@ -5,26 +5,26 @@
 
 namespace aetherion {
     struct SamplerDescription {
-        FilterMode magFilter;
-        FilterMode minFilter;
-        SamplerMipmapMode mipmapMode;
-        SamplerAddressMode addressModeU;
-        SamplerAddressMode addressModeV;
-        SamplerAddressMode addressModeW;
-        float mipLodBias;
-        bool enableAnisotropicFiltering;
-        float maxAnisotropy;
-        bool enableCompare;
-        CompareOp compareOp;
-        float minLod;
-        float maxLod;
-        SamplerBorderColor borderColor;
+        FilterMode magFilter = FilterMode::Nearest;
+        FilterMode minFilter = FilterMode::Nearest;
+        SamplerMipmapMode mipmapMode = SamplerMipmapMode::Nearest;
+        SamplerAddressMode addressModeU = SamplerAddressMode::Repeat;
+        SamplerAddressMode addressModeV = SamplerAddressMode::Repeat;
+        SamplerAddressMode addressModeW = SamplerAddressMode::Repeat;
+        float mipLodBias{};
+        bool enableAnisotropicFiltering{};
+        float maxAnisotropy{};
+        bool enableCompare{};
+        CompareOp compareOp = CompareOp::Always;
+        float minLod{};
+        float maxLod{};
+        SamplerBorderColor borderColor = SamplerBorderColor::FloatTransparentBlack;
         bool unnormalizedCoordinates = false;
     };
 
     class ISampler : public IResource {
       public:
-        virtual ~ISampler() = 0;
+        ~ISampler() override = 0;
 
         ISampler(const ISampler&) = delete;
         ISampler& operator=(const ISampler&) = delete;

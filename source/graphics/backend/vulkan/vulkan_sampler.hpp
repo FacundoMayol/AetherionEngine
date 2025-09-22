@@ -13,7 +13,7 @@ namespace aetherion {
         VulkanSampler() = delete;
         VulkanSampler(VulkanDevice& device, const SamplerDescription& description);
         VulkanSampler(vk::Device device, vk::Sampler sampler);
-        virtual ~VulkanSampler() noexcept override;
+        ~VulkanSampler() noexcept override;
 
         VulkanSampler(const VulkanSampler&) = delete;
         VulkanSampler& operator=(const VulkanSampler&) = delete;

@@ -15,7 +15,7 @@ namespace aetherion {
         VulkanBuffer(VulkanDevice& device, const BufferDescription& description);
         VulkanBuffer(vk::Device device, vma::Allocator allocator, vk::Buffer buffer,
                      vma::Allocation allocation);
-        virtual ~VulkanBuffer() noexcept override;
+        ~VulkanBuffer() noexcept override;
 
         VulkanBuffer(const VulkanBuffer&) = delete;
         VulkanBuffer& operator=(const VulkanBuffer&) = delete;
@@ -23,8 +23,8 @@ namespace aetherion {
         VulkanBuffer(VulkanBuffer&&) noexcept;
         VulkanBuffer& operator=(VulkanBuffer&&) noexcept;
 
-        virtual void* map() override;
-        virtual void unmap() override;
+        void* map() override;
+        void unmap() override;
 
         inline vk::Buffer getVkBuffer() const { return buffer_; }
         inline vma::Allocation getVmaAllocation() const { return allocation_; }

@@ -13,7 +13,7 @@ namespace aetherion {
         VulkanFence() = delete;
         VulkanFence(VulkanDevice& device, const GPUFenceDescription& description);
         VulkanFence(vk::Device, vk::Fence fence);
-        virtual ~VulkanFence() noexcept override;
+        ~VulkanFence() noexcept override;
 
         VulkanFence(const VulkanFence&) = delete;
         VulkanFence& operator=(const VulkanFence&) = delete;
@@ -21,9 +21,9 @@ namespace aetherion {
         VulkanFence(VulkanFence&&) noexcept;
         VulkanFence& operator=(VulkanFence&&) noexcept;
 
-        virtual void wait(uint64_t timeout) override;
-        virtual void reset() override;
-        virtual bool isSignaled() const override;
+        void wait(uint64_t timeout) override;
+        void reset() override;
+        bool isSignaled() const override;
 
         inline vk::Fence getVkFence() const { return fence_; }
 
@@ -42,7 +42,7 @@ namespace aetherion {
         VulkanBinarySemaphore(VulkanDevice& device,
                               const GPUBinarySemaphoreDescription& description);
         VulkanBinarySemaphore(vk::Device, vk::Semaphore semaphore);
-        virtual ~VulkanBinarySemaphore() noexcept override;
+        ~VulkanBinarySemaphore() noexcept override;
 
         VulkanBinarySemaphore(const VulkanBinarySemaphore&) = delete;
         VulkanBinarySemaphore& operator=(const VulkanBinarySemaphore&) = delete;
@@ -67,7 +67,7 @@ namespace aetherion {
         VulkanTimelineSemaphore(VulkanDevice& device,
                                 const GPUTimelineSemaphoreDescription& description);
         VulkanTimelineSemaphore(vk::Device device, vk::Semaphore semaphore);
-        virtual ~VulkanTimelineSemaphore() noexcept override;
+        ~VulkanTimelineSemaphore() noexcept override;
 
         VulkanTimelineSemaphore(const VulkanTimelineSemaphore&) = delete;
         VulkanTimelineSemaphore& operator=(const VulkanTimelineSemaphore&) = delete;
@@ -75,9 +75,9 @@ namespace aetherion {
         VulkanTimelineSemaphore(VulkanTimelineSemaphore&&) noexcept;
         VulkanTimelineSemaphore& operator=(VulkanTimelineSemaphore&&) noexcept;
 
-        virtual void wait(uint64_t value, uint64_t timeout) override;
-        virtual void signal(uint64_t value) override;
-        virtual uint64_t getCurrentValue() const override;
+        void wait(uint64_t value, uint64_t timeout) override;
+        void signal(uint64_t value) override;
+        uint64_t getCurrentValue() const override;
 
         inline vk::Semaphore getVkSemaphore() const { return semaphore_; }
 

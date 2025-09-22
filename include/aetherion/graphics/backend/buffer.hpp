@@ -19,7 +19,7 @@ namespace aetherion {
 
     class IBuffer : public IResource {
       public:
-        virtual ~IBuffer() = 0;
+        ~IBuffer() override = 0;
 
         IBuffer(const IBuffer&) = delete;
         IBuffer& operator=(const IBuffer&) = delete;

@@ -14,10 +14,9 @@ namespace aetherion {
         GLFWWindowManager(GLFWWindowManager&&) noexcept = default;
         GLFWWindowManager& operator=(GLFWWindowManager&&) noexcept = default;
 
-        virtual void pollEvents() override;
+        void pollEvents() override;
 
-        virtual std::unique_ptr<IWindow> createWindow(
-            const WindowDescription& description) override;
+        std::unique_ptr<IWindow> createWindow(const WindowDescription& description) override;
 
         void clear() noexcept;
         void release() noexcept;

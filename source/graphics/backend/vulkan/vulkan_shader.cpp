@@ -5,10 +5,12 @@
 namespace aetherion {
     VulkanShader::VulkanShader(VulkanDevice& device, const ShaderDescription& description)
         : device_(device.getVkDevice()) {
-        auto shaderModuleCreateInfo
-            = vk::ShaderModuleCreateInfo()
-                  .setCodeSize(description.code.size())
-                  .setPCode(reinterpret_cast<const uint32_t*>(description.code.data()));
+        assert(description.code.size() % sizeof(uint32_t) == 0
+               && "Shader code size must be a multiple of 4 bytes");
+        auto shaderModuleCreateInfo = vk::ShaderModuleCreateInfo()
+                                          .setCodeSize(description.code.size())
+                                          .setPCode(static_cast<const uint32_t*>(
+                                              static_cast<const void*>(description.code.data())));
 
         shaderModule_ = device_.createShaderModule(shaderModuleCreateInfo);
     }

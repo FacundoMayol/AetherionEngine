@@ -11,7 +11,7 @@ namespace aetherion {
 
     class IShader : public IResource {
       public:
-        virtual ~IShader() = 0;
+        ~IShader() override = 0;
 
         IShader(const IShader&) = delete;
         IShader& operator=(const IShader&) = delete;

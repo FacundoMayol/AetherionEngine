@@ -30,17 +30,7 @@ namespace aetherion {
     }
 
     constexpr vk::ClearColorValue toVkClearColorValue(const ColorClearValue& color) {
-        auto vkColor = vk::ClearColorValue();
-        if (std::holds_alternative<std::array<float, 4>>(color)) {
-            vkColor.setFloat32(std::get<std::array<float, 4>>(color));
-        } else if (std::holds_alternative<std::array<int32_t, 4>>(color)) {
-            vkColor.setInt32(std::get<std::array<int32_t, 4>>(color));
-        } else if (std::holds_alternative<std::array<uint32_t, 4>>(color)) {
-            vkColor.setUint32(std::get<std::array<uint32_t, 4>>(color));
-        } else {
-            throw std::invalid_argument("Invalid ColorClearValue variant");
-        }
-        return vkColor;
+        return std::visit([](const auto& arr) { return vk::ClearColorValue(arr); }, color);
     }
 
     constexpr vk::ClearDepthStencilValue toVkClearDepthStencilValue(float depth, uint32_t stencil) {

@@ -220,7 +220,9 @@ namespace aetherion {
 
     VulkanDescriptorPool::VulkanDescriptorPool(VulkanDevice& device,
                                                const DescriptorPoolDescription& description)
-        : device_(device.getVkDevice()) {
+        : device_(device.getVkDevice()),
+          freeDescriptorSetSupport_(
+              description.flags.contains(DescriptorPoolBehavior::FreeIndividualSets)) {
         std::vector<vk::DescriptorPoolSize> poolSizes;
         poolSizes.reserve(description.poolSizes.size());
         for (const auto& size : description.poolSizes) {
@@ -236,9 +238,6 @@ namespace aetherion {
                   .setFlags(toVkDescriptorPoolCreateFlags(description.flags));
 
         descriptorPool_ = device_.createDescriptorPool(poolCreateInfo);
-
-        freeDescriptorSetSupport_
-            = description.flags.contains(DescriptorPoolBehavior::FreeIndividualSets);
     }
 
     VulkanDescriptorPool::VulkanDescriptorPool(vk::Device device, vk::DescriptorPool descriptorPool,

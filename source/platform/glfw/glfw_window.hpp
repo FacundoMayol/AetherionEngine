@@ -14,7 +14,7 @@ namespace aetherion {
         GLFWWindow() = delete;
         GLFWWindow(GLFWWindowManager& manager, const WindowDescription& description);
         GLFWWindow(GLFWWindowManager& manager, GLFWwindow* window);
-        virtual ~GLFWWindow() override;
+        ~GLFWWindow() override;
 
         GLFWWindow(const GLFWWindow&) = delete;
         GLFWWindow& operator=(const GLFWWindow&) = delete;
@@ -22,13 +22,13 @@ namespace aetherion {
         GLFWWindow(GLFWWindow&&) noexcept;
         GLFWWindow& operator=(GLFWWindow&&) noexcept;
 
-        virtual vk::SurfaceKHR createVulkanSurface(vk::Instance instance) const override;
+        vk::SurfaceKHR createVulkanSurface(vk::Instance instance) const override;
 
         inline GLFWwindow* getGlfwWindow() { return window_; }
 
-        virtual bool shouldClose() const override;
+        bool shouldClose() const override;
 
-        virtual void setShouldClose(bool value) override;
+        void setShouldClose(bool value) override;
 
         void clear() noexcept;
         void release() noexcept;

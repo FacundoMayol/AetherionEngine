@@ -15,7 +15,7 @@ namespace aetherion {
         VulkanImage(VulkanDevice& device, const ImageDescription& description);
         VulkanImage(vk::Device device, vma::Allocator allocator, vk::Image image,
                     vma::Allocation allocation);
-        virtual ~VulkanImage() noexcept override;
+        ~VulkanImage() noexcept override;
 
         VulkanImage(const VulkanImage&) = delete;
         VulkanImage& operator=(const VulkanImage&) = delete;
