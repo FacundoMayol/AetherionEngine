@@ -30,7 +30,7 @@ namespace aetherion {
 
         uint32_t getImageCount() const override;
 
-        IImage& getImage(uint32_t index) override;
+        IRenderImage& getImage(uint32_t index) override;
 
         inline vk::SwapchainKHR getVkSwapchain() const { return swapchain_; }
 

@@ -1,5 +1,5 @@
 #include "aetherion/graphics/backend/buffer.hpp"
 
 namespace aetherion {
-    IBuffer::~IBuffer() = default;
+    IRenderBuffer::~IRenderBuffer() = default;
 }  // namespace aetherion

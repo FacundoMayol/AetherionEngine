@@ -138,5 +138,5 @@ namespace aetherion {
         return static_cast<uint32_t>(wrappedImages_.size());
     }
 
-    IImage& VulkanSwapchain::getImage(uint32_t index) { return wrappedImages_.at(index); }
+    IRenderImage& VulkanSwapchain::getImage(uint32_t index) { return wrappedImages_.at(index); }
 }  // namespace aetherion

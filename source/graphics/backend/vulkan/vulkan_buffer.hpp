@@ -9,7 +9,7 @@ namespace aetherion {
     // Forward declarations
     class VulkanDevice;
 
-    class VulkanBuffer : public IBuffer {
+    class VulkanBuffer : public IRenderBuffer {
       public:
         VulkanBuffer() = delete;
         VulkanBuffer(VulkanDevice& device, const BufferDescription& description);

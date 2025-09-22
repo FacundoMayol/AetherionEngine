@@ -1,5 +1,5 @@
 #include "aetherion/graphics/backend/buffer_view.hpp"
 
 namespace aetherion {
-    IBufferView::~IBufferView() = default;
+    IRenderBufferView::~IRenderBufferView() = default;
 }  // namespace aetherion

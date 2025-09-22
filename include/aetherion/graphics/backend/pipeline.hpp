@@ -116,7 +116,7 @@ namespace aetherion {
         PipelineColorBlendAttachmentStateDescription colorBlendStateDescription;
     };
 
-    class IPipelineLayout : public IResource {
+    class IPipelineLayout : public IRenderResource {
       public:
         ~IPipelineLayout() override = 0;
 
@@ -129,7 +129,7 @@ namespace aetherion {
         IPipelineLayout& operator=(IPipelineLayout&&) noexcept = default;
     };
 
-    class IPipeline : public IResource {
+    class IPipeline : public IRenderResource {
       public:
         ~IPipeline() override = 0;
 

@@ -1,16 +1,16 @@
 #pragma once
 
 namespace aetherion {
-    class IResource {
+    class IRenderResource {
       public:
-        virtual ~IResource() = 0;
+        virtual ~IRenderResource() = 0;
 
-        IResource(const IResource&) = delete;
-        IResource& operator=(const IResource&) = delete;
+        IRenderResource(const IRenderResource&) = delete;
+        IRenderResource& operator=(const IRenderResource&) = delete;
 
       protected:
-        IResource() = default;
-        IResource(IResource&&) noexcept = default;
-        IResource& operator=(IResource&&) noexcept = default;
+        IRenderResource() = default;
+        IRenderResource(IRenderResource&&) noexcept = default;
+        IRenderResource& operator=(IRenderResource&&) noexcept = default;
     };
 }  // namespace aetherion

@@ -1,5 +1,5 @@
 #include "aetherion/graphics/backend/image_view.hpp"
 
 namespace aetherion {
-    IImageView::~IImageView() = default;
+    IRenderImageView::~IRenderImageView() = default;
 }  // namespace aetherion

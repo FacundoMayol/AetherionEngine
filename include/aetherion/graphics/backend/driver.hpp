@@ -8,10 +8,10 @@ namespace aetherion {
     class IRenderDevice;
     class IWindowManager;
     class IWindow;
-    class ISurface;
+    class IRenderSurface;
     struct PhysicalDeviceDescription;
     struct DeviceDescription;
-    struct SurfaceDescription;
+    struct RenderSurfaceDescription;
 
     enum class DriverType { Vulkan, Direct3D12, Metal, OpenGL, OpenGLES, Software };
 
@@ -39,7 +39,9 @@ namespace aetherion {
             const DeviceDescription& deviceDescription)
             = 0;
 
-        virtual std::unique_ptr<ISurface> createSurface(const SurfaceDescription& description) = 0;
+        virtual std::unique_ptr<IRenderSurface> createSurface(
+            const RenderSurfaceDescription& description)
+            = 0;
 
       protected:
         IRenderDriver() = default;

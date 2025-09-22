@@ -5,31 +5,31 @@
 
 namespace aetherion {
     // Forward declarations
-    class IImage;
+    class IRenderImage;
 
-    struct ImageViewDescription {
-        IImage* image{};
+    struct RenderImageViewDescription {
+        IRenderImage* image{};
         Format format = Format::Undefined;
-        ImageViewType viewType = ImageViewType::Tex2d;
+        RenderImageViewType viewType = RenderImageViewType::Tex2d;
         struct SwizzleDescription {
             ComponentSwizzle r = ComponentSwizzle::Identity;
             ComponentSwizzle g = ComponentSwizzle::Identity;
             ComponentSwizzle b = ComponentSwizzle::Identity;
             ComponentSwizzle a = ComponentSwizzle::Identity;
         } swizzle;
-        ImageSubresourceDescription subresource;
+        RenderImageSubresourceDescription subresource;
     };
 
-    class IImageView : public IResource {
+    class IRenderImageView : public IRenderResource {
       public:
-        ~IImageView() override = 0;
+        ~IRenderImageView() override = 0;
 
-        IImageView(const IImageView&) = delete;
-        IImageView& operator=(const IImageView&) = delete;
+        IRenderImageView(const IRenderImageView&) = delete;
+        IRenderImageView& operator=(const IRenderImageView&) = delete;
 
       protected:
-        IImageView() = default;
-        IImageView(IImageView&&) noexcept = default;
-        IImageView& operator=(IImageView&&) noexcept = default;
+        IRenderImageView() = default;
+        IRenderImageView(IRenderImageView&&) noexcept = default;
+        IRenderImageView& operator=(IRenderImageView&&) noexcept = default;
     };
 }  // namespace aetherion

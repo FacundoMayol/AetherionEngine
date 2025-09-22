@@ -22,7 +22,7 @@ namespace aetherion {
         bool unnormalizedCoordinates = false;
     };
 
-    class ISampler : public IResource {
+    class ISampler : public IRenderResource {
       public:
         ~ISampler() override = 0;
 

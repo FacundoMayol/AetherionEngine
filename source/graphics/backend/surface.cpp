@@ -1,5 +1,5 @@
 #include "aetherion/graphics/backend/surface.hpp"
 
 namespace aetherion {
-    ISurface::~ISurface() = default;
+    IRenderSurface::~IRenderSurface() = default;
 }  // namespace aetherion

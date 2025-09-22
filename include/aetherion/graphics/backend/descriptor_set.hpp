@@ -9,7 +9,7 @@ namespace aetherion {
     // Forward declarations
     class IDescriptorPool;
     class IDescriptorSetLayout;
-    class IImage;
+    class IRenderImage;
 
     struct DescriptorPoolSize {
         DescriptorType type;
@@ -56,7 +56,7 @@ namespace aetherion {
         IDescriptorSetLayout& operator=(IDescriptorSetLayout&&) noexcept = default;
     };
 
-    class IDescriptorSet : public IResource {
+    class IDescriptorSet : public IRenderResource {
       public:
         ~IDescriptorSet() override = 0;
 
@@ -69,7 +69,7 @@ namespace aetherion {
         IDescriptorSet& operator=(IDescriptorSet&&) noexcept = default;
     };
 
-    class IDescriptorPool : public IResource {
+    class IDescriptorPool : public IRenderResource {
       public:
         ~IDescriptorPool() override = 0;
 

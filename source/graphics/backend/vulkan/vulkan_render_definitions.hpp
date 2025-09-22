@@ -759,34 +759,34 @@ namespace aetherion {
 
     // --- Buffer ---
 
-    constexpr vk::BufferUsageFlags toVkBufferUsageFlags(const BufferUsageFlags usage) {
+    constexpr vk::BufferUsageFlags toVkBufferUsageFlags(const RenderBufferUsageFlags usage) {
         vk::BufferUsageFlags vkFlags = {};
 
-        if (usage.contains(BufferUsage::TransferSrc)) {
+        if (usage.contains(RenderBufferUsage::TransferSrc)) {
             vkFlags |= vk::BufferUsageFlagBits::eTransferSrc;
         }
-        if (usage.contains(BufferUsage::TransferDst)) {
+        if (usage.contains(RenderBufferUsage::TransferDst)) {
             vkFlags |= vk::BufferUsageFlagBits::eTransferDst;
         }
-        if (usage.contains(BufferUsage::UniformTexel)) {
+        if (usage.contains(RenderBufferUsage::UniformTexel)) {
             vkFlags |= vk::BufferUsageFlagBits::eUniformTexelBuffer;
         }
-        if (usage.contains(BufferUsage::StorageTexel)) {
+        if (usage.contains(RenderBufferUsage::StorageTexel)) {
             vkFlags |= vk::BufferUsageFlagBits::eStorageTexelBuffer;
         }
-        if (usage.contains(BufferUsage::Uniform)) {
+        if (usage.contains(RenderBufferUsage::Uniform)) {
             vkFlags |= vk::BufferUsageFlagBits::eUniformBuffer;
         }
-        if (usage.contains(BufferUsage::Storage)) {
+        if (usage.contains(RenderBufferUsage::Storage)) {
             vkFlags |= vk::BufferUsageFlagBits::eStorageBuffer;
         }
-        if (usage.contains(BufferUsage::Index)) {
+        if (usage.contains(RenderBufferUsage::Index)) {
             vkFlags |= vk::BufferUsageFlagBits::eIndexBuffer;
         }
-        if (usage.contains(BufferUsage::Vertex)) {
+        if (usage.contains(RenderBufferUsage::Vertex)) {
             vkFlags |= vk::BufferUsageFlagBits::eVertexBuffer;
         }
-        if (usage.contains(BufferUsage::Indirect)) {
+        if (usage.contains(RenderBufferUsage::Indirect)) {
             vkFlags |= vk::BufferUsageFlagBits::eIndirectBuffer;
         }
 
@@ -810,43 +810,43 @@ namespace aetherion {
 
     // --- Image ---
 
-    constexpr vk::ImageLayout toVkImageLayout(const ImageLayout layout) {
+    constexpr vk::ImageLayout toVkImageLayout(const RenderImageLayout layout) {
         switch (layout) {
-            case ImageLayout::Undefined:
+            case RenderImageLayout::Undefined:
                 return vk::ImageLayout::eUndefined;
-            case ImageLayout::General:
+            case RenderImageLayout::General:
                 return vk::ImageLayout::eGeneral;
-            case ImageLayout::ColorAttachmentOptimal:
+            case RenderImageLayout::ColorAttachmentOptimal:
                 return vk::ImageLayout::eColorAttachmentOptimal;
-            case ImageLayout::DepthStencilAttachmentOptimal:
+            case RenderImageLayout::DepthStencilAttachmentOptimal:
                 return vk::ImageLayout::eDepthStencilAttachmentOptimal;
-            case ImageLayout::DepthStencilReadOnlyOptimal:
+            case RenderImageLayout::DepthStencilReadOnlyOptimal:
                 return vk::ImageLayout::eDepthStencilReadOnlyOptimal;
-            case ImageLayout::ShaderReadOnlyOptimal:
+            case RenderImageLayout::ShaderReadOnlyOptimal:
                 return vk::ImageLayout::eShaderReadOnlyOptimal;
-            case ImageLayout::TransferSrcOptimal:
+            case RenderImageLayout::TransferSrcOptimal:
                 return vk::ImageLayout::eTransferSrcOptimal;
-            case ImageLayout::TransferDstOptimal:
+            case RenderImageLayout::TransferDstOptimal:
                 return vk::ImageLayout::eTransferDstOptimal;
-            case ImageLayout::Preinitialized:
+            case RenderImageLayout::Preinitialized:
                 return vk::ImageLayout::ePreinitialized;
-            case ImageLayout::PresentSource:
+            case RenderImageLayout::PresentSource:
                 return vk::ImageLayout::ePresentSrcKHR;
             default:
-                throw std::invalid_argument("Invalid ImageLayout");
+                throw std::invalid_argument("Invalid RenderImageLayout");
         }
     }
 
-    constexpr vk::ImageType toVkImageType(const ImageType type) {
+    constexpr vk::ImageType toVkImageType(const RenderImageType type) {
         switch (type) {
-            case ImageType::Tex1d:
+            case RenderImageType::Tex1d:
                 return vk::ImageType::e1D;
-            case ImageType::Tex2d:
+            case RenderImageType::Tex2d:
                 return vk::ImageType::e2D;
-            case ImageType::Tex3d:
+            case RenderImageType::Tex3d:
                 return vk::ImageType::e3D;
             default:
-                throw std::invalid_argument("Invalid ImageType");
+                throw std::invalid_argument("Invalid RenderImageType");
         }
     }
 
@@ -901,24 +901,24 @@ namespace aetherion {
         }
     }
 
-    constexpr vk::ImageViewType toVkImageViewType(const ImageViewType type) {
+    constexpr vk::ImageViewType toVkImageViewType(const RenderImageViewType type) {
         switch (type) {
-            case ImageViewType::Tex1d:
+            case RenderImageViewType::Tex1d:
                 return vk::ImageViewType::e1D;
-            case ImageViewType::Tex1dArray:
+            case RenderImageViewType::Tex1dArray:
                 return vk::ImageViewType::e1DArray;
-            case ImageViewType::Tex2d:
+            case RenderImageViewType::Tex2d:
                 return vk::ImageViewType::e2D;
-            case ImageViewType::Tex2dArray:
+            case RenderImageViewType::Tex2dArray:
                 return vk::ImageViewType::e2DArray;
-            case ImageViewType::Tex3d:
+            case RenderImageViewType::Tex3d:
                 return vk::ImageViewType::e3D;
-            case ImageViewType::TexCube:
+            case RenderImageViewType::TexCube:
                 return vk::ImageViewType::eCube;
-            case ImageViewType::TexCubeArray:
+            case RenderImageViewType::TexCubeArray:
                 return vk::ImageViewType::eCubeArray;
             default:
-                throw std::invalid_argument("Invalid ImageViewType");
+                throw std::invalid_argument("Invalid RenderImageViewType");
         }
     }
 
@@ -943,108 +943,108 @@ namespace aetherion {
         }
     }
 
-    constexpr vk::ImageUsageFlagBits toVkImageUsageFlags(const ImageUsage usage) {
+    constexpr vk::ImageUsageFlagBits toVkImageUsageFlags(const RenderImageUsage usage) {
         switch (usage) {
-            case ImageUsage::None:
+            case RenderImageUsage::None:
                 return {};
-            case ImageUsage::Sampled:
+            case RenderImageUsage::Sampled:
                 return vk::ImageUsageFlagBits::eSampled;
-            case ImageUsage::Storage:
+            case RenderImageUsage::Storage:
                 return vk::ImageUsageFlagBits::eStorage;
-            case ImageUsage::TransferSrc:
+            case RenderImageUsage::TransferSrc:
                 return vk::ImageUsageFlagBits::eTransferSrc;
-            case ImageUsage::TransferDst:
+            case RenderImageUsage::TransferDst:
                 return vk::ImageUsageFlagBits::eTransferDst;
-            case ImageUsage::ColorAttachment:
+            case RenderImageUsage::ColorAttachment:
                 return vk::ImageUsageFlagBits::eColorAttachment;
-            case ImageUsage::DepthStencilAttachment:
+            case RenderImageUsage::DepthStencilAttachment:
                 return vk::ImageUsageFlagBits::eDepthStencilAttachment;
-            case ImageUsage::InputAttachment:
+            case RenderImageUsage::InputAttachment:
                 return vk::ImageUsageFlagBits::eInputAttachment;
-            case ImageUsage::TransientAttachment:
+            case RenderImageUsage::TransientAttachment:
                 return vk::ImageUsageFlagBits::eTransientAttachment;
             default:
-                throw std::invalid_argument("Invalid ImageUsage");
+                throw std::invalid_argument("Invalid RenderImageUsage");
         }
     }
 
-    constexpr vk::ImageUsageFlags toVkImageUsageFlags(const ImageUsageFlags usages) {
+    constexpr vk::ImageUsageFlags toVkImageUsageFlags(const RenderImageUsageFlags usages) {
         vk::ImageUsageFlags flags = {};
-        if (usages.contains(ImageUsage::Sampled)) {
+        if (usages.contains(RenderImageUsage::Sampled)) {
             flags |= vk::ImageUsageFlagBits::eSampled;
         }
-        if (usages.contains(ImageUsage::Storage)) {
+        if (usages.contains(RenderImageUsage::Storage)) {
             flags |= vk::ImageUsageFlagBits::eStorage;
         }
-        if (usages.contains(ImageUsage::TransferSrc)) {
+        if (usages.contains(RenderImageUsage::TransferSrc)) {
             flags |= vk::ImageUsageFlagBits::eTransferSrc;
         }
-        if (usages.contains(ImageUsage::TransferDst)) {
+        if (usages.contains(RenderImageUsage::TransferDst)) {
             flags |= vk::ImageUsageFlagBits::eTransferDst;
         }
-        if (usages.contains(ImageUsage::ColorAttachment)) {
+        if (usages.contains(RenderImageUsage::ColorAttachment)) {
             flags |= vk::ImageUsageFlagBits::eColorAttachment;
         }
-        if (usages.contains(ImageUsage::DepthStencilAttachment)) {
+        if (usages.contains(RenderImageUsage::DepthStencilAttachment)) {
             flags |= vk::ImageUsageFlagBits::eDepthStencilAttachment;
         }
-        if (usages.contains(ImageUsage::InputAttachment)) {
+        if (usages.contains(RenderImageUsage::InputAttachment)) {
             flags |= vk::ImageUsageFlagBits::eInputAttachment;
         }
-        if (usages.contains(ImageUsage::TransientAttachment)) {
+        if (usages.contains(RenderImageUsage::TransientAttachment)) {
             flags |= vk::ImageUsageFlagBits::eTransientAttachment;
         }
         return flags;
     }
 
-    constexpr vk::ImageTiling toVkImageTiling(const ImageTiling tiling) {
+    constexpr vk::ImageTiling toVkImageTiling(const RenderImageTiling tiling) {
         switch (tiling) {
-            case ImageTiling::Optimal:
+            case RenderImageTiling::Optimal:
                 return vk::ImageTiling::eOptimal;
-            case ImageTiling::Linear:
+            case RenderImageTiling::Linear:
                 return vk::ImageTiling::eLinear;
             default:
-                throw std::invalid_argument("Invalid ImageTiling");
+                throw std::invalid_argument("Invalid RenderImageTiling");
         }
     }
 
-    constexpr vk::ImageAspectFlagBits toVkImageAspectFlag(const ImageAspect aspect) {
+    constexpr vk::ImageAspectFlagBits toVkImageAspectFlag(const RenderImageAspect aspect) {
         switch (aspect) {
-            case ImageAspect::Color:
+            case RenderImageAspect::Color:
                 return vk::ImageAspectFlagBits::eColor;
-            case ImageAspect::Depth:
+            case RenderImageAspect::Depth:
                 return vk::ImageAspectFlagBits::eDepth;
-            case ImageAspect::Stencil:
+            case RenderImageAspect::Stencil:
                 return vk::ImageAspectFlagBits::eStencil;
-            case ImageAspect::Metadata:
+            case RenderImageAspect::Metadata:
                 return vk::ImageAspectFlagBits::eMetadata;
             default:
-                throw std::invalid_argument("Invalid ImageAspect");
+                throw std::invalid_argument("Invalid RenderImageAspect");
         }
     }
 
-    constexpr vk::ImageAspectFlags toVkImageAspectFlags(const ImageAspectFlags aspects) {
+    constexpr vk::ImageAspectFlags toVkImageAspectFlags(const RenderImageAspectFlags aspects) {
         vk::ImageAspectFlags flags = {};
-        if (aspects.contains(ImageAspect::Color)) {
+        if (aspects.contains(RenderImageAspect::Color)) {
             flags |= vk::ImageAspectFlagBits::eColor;
         }
-        if (aspects.contains(ImageAspect::Depth)) {
+        if (aspects.contains(RenderImageAspect::Depth)) {
             flags |= vk::ImageAspectFlagBits::eDepth;
         }
-        if (aspects.contains(ImageAspect::Stencil)) {
+        if (aspects.contains(RenderImageAspect::Stencil)) {
             flags |= vk::ImageAspectFlagBits::eStencil;
         }
-        if (aspects.contains(ImageAspect::Metadata)) {
+        if (aspects.contains(RenderImageAspect::Metadata)) {
             flags |= vk::ImageAspectFlagBits::eMetadata;
         }
         return flags;
     }
 
-    constexpr SurfaceFormat toSurfaceFormat(const vk::SurfaceFormatKHR& format) {
+    constexpr RenderSurfaceFormat toSurfaceFormat(const vk::SurfaceFormatKHR& format) {
         return {toFormat(format.format), toColorSpace(format.colorSpace)};
     }
 
-    constexpr vk::SurfaceFormatKHR toVkSurfaceFormat(const SurfaceFormat& format) {
+    constexpr vk::SurfaceFormatKHR toVkSurfaceFormat(const RenderSurfaceFormat& format) {
         return vk::SurfaceFormatKHR(toVkFormat(format.imageFormat),
                                     toVkColorSpace(format.colorSpace));
     }
@@ -1127,7 +1127,7 @@ namespace aetherion {
     }
 
     constexpr vk::ImageSubresourceRange toVkImageSubresourceRange(
-        const ImageSubresourceDescription& range) {
+        const RenderImageSubresourceDescription& range) {
         return vk::ImageSubresourceRange(toVkImageAspectFlags(range.aspectMask),
                                          range.range.baseMipLevel, range.range.layerCount,
                                          range.range.baseArrayLayer, range.range.layerCount);

@@ -5,7 +5,7 @@
 #include "vulkan_render_definitions.hpp"
 
 namespace aetherion {
-    VulkanSurface::VulkanSurface(VulkanDriver& driver, const SurfaceDescription& description)
+    VulkanSurface::VulkanSurface(VulkanDriver& driver, const RenderSurfaceDescription& description)
         : instance_(driver.getVkInstance()) {
         if (!description.window) {
             throw(std::invalid_argument("A window is required to create a Vulkan surface."));
@@ -20,7 +20,7 @@ namespace aetherion {
     VulkanSurface::~VulkanSurface() noexcept { clear(); }
 
     VulkanSurface::VulkanSurface(VulkanSurface&& other) noexcept
-        : ISurface(std::move(other)), instance_(other.instance_), surface_(other.surface_) {
+        : IRenderSurface(std::move(other)), instance_(other.instance_), surface_(other.surface_) {
         other.surface_ = nullptr;
         other.instance_ = nullptr;
     }
@@ -42,7 +42,7 @@ namespace aetherion {
         if (this != &other) {
             clear();
 
-            ISurface::operator=(std::move(other));
+            IRenderSurface::operator=(std::move(other));
             instance_ = other.instance_;
             surface_ = other.surface_;
 
@@ -51,14 +51,14 @@ namespace aetherion {
         return *this;
     }
 
-    std::vector<SurfaceFormat> VulkanSurface::getSupportedFormats(
+    std::vector<RenderSurfaceFormat> VulkanSurface::getSupportedFormats(
         const IPhysicalDevice& physicalDevice) const {
         const auto& vkPhysicalDevice
             = dynamic_cast<const VulkanPhysicalDevice&>(physicalDevice).getVkPhysicalDevice();
 
         auto vkSurfaceFormats = vkPhysicalDevice.getSurfaceFormatsKHR(surface_);
 
-        std::vector<SurfaceFormat> supportedFormats;
+        std::vector<RenderSurfaceFormat> supportedFormats;
         for (const auto& vkSurfaceFormat : vkSurfaceFormats) {
             supportedFormats.push_back(toSurfaceFormat(vkSurfaceFormat));
         }

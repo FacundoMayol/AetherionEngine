@@ -73,15 +73,15 @@ namespace aetherion {
             ICommandPool& pool,
             std::span<std::reference_wrapper<ICommandBuffer>> commandBuffers) override;
 
-        std::unique_ptr<IBuffer> createBuffer(const BufferDescription& description) override;
+        std::unique_ptr<IRenderBuffer> createBuffer(const BufferDescription& description) override;
 
-        std::unique_ptr<IBufferView> createBufferView(
-            const BufferViewDescription& description) override;
+        std::unique_ptr<IRenderBufferView> createBufferView(
+            const RenderBufferViewDescription& description) override;
 
-        std::unique_ptr<IImage> createImage(const ImageDescription& description) override;
+        std::unique_ptr<IRenderImage> createImage(const ImageDescription& description) override;
 
-        std::unique_ptr<IImageView> createImageView(
-            const ImageViewDescription& description) override;
+        std::unique_ptr<IRenderImageView> createImageView(
+            const RenderImageViewDescription& description) override;
 
         std::unique_ptr<ISampler> createSampler(const SamplerDescription& description) override;
 

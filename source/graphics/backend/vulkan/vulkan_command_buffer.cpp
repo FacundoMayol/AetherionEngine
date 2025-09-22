@@ -314,8 +314,8 @@ namespace aetherion {
         commandBuffer_.setScissor(0, toVkRect2D(scissor));
     }
 
-    void VulkanCommandBuffer::clear(IImage& image, ImageLayout layout,
-                                    const std::vector<ImageRangeDescription>& ranges,
+    void VulkanCommandBuffer::clear(IRenderImage& image, RenderImageLayout layout,
+                                    const std::vector<RenderImageRangeDescription>& ranges,
                                     const ClearValue& clearValue) {
         const auto& vkImage = dynamic_cast<VulkanImage&>(image);
 
@@ -329,8 +329,8 @@ namespace aetherion {
         if (clearValue.index() == 0) {
             // Color clear
             for (const auto& range : ranges)
-                vkRanges.push_back(
-                    toVkImageSubresourceRange({.aspectMask = ImageAspect::Color, .range = range}));
+                vkRanges.push_back(toVkImageSubresourceRange(
+                    {.aspectMask = RenderImageAspect::Color, .range = range}));
             commandBuffer_.clearColorImage(
                 vkImage.getVkImage(), toVkImageLayout(layout),
                 vkClearValue.color,  // NOLINT(cppcoreguidelines-pro-type-union-access)
@@ -338,8 +338,8 @@ namespace aetherion {
         } else if (clearValue.index() == 1) {
             // Depth-stencil clear
             for (const auto& range : ranges)
-                vkRanges.push_back(
-                    toVkImageSubresourceRange({.aspectMask = ImageAspect::Depth, .range = range}));
+                vkRanges.push_back(toVkImageSubresourceRange(
+                    {.aspectMask = RenderImageAspect::Depth, .range = range}));
             commandBuffer_.clearDepthStencilImage(
                 vkImage.getVkImage(), toVkImageLayout(layout),
                 vkClearValue.depthStencil,  // NOLINT(cppcoreguidelines-pro-type-union-access)
@@ -416,13 +416,14 @@ namespace aetherion {
         commandBuffer_.bindVertexBuffers2(firstBinding, vkBuffers, vkOffsets, vkSizes, vkStrides);
     }
 
-    void VulkanCommandBuffer::bindIndexBuffer(IBuffer& buffer, size_t offset, IndexType indexType) {
+    void VulkanCommandBuffer::bindIndexBuffer(IRenderBuffer& buffer, size_t offset,
+                                              IndexType indexType) {
         const auto& vkBuffer = dynamic_cast<const VulkanBuffer*>(&buffer);
 
         commandBuffer_.bindIndexBuffer(vkBuffer->getVkBuffer(), offset, toVkIndexType(indexType));
     }
 
-    void VulkanCommandBuffer::copyBuffer(IBuffer& src, IBuffer& dst,
+    void VulkanCommandBuffer::copyBuffer(IRenderBuffer& src, IRenderBuffer& dst,
                                          const std::vector<BufferCopyRegion>& regions) {
         const auto& vkSrcBuffer = dynamic_cast<const VulkanBuffer&>(src);
         const auto& vkDstBuffer = dynamic_cast<const VulkanBuffer&>(dst);

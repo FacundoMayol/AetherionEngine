@@ -10,24 +10,24 @@ namespace aetherion {
     class IPhysicalDevice;
     class IWindow;
 
-    struct SurfaceDescription {
+    struct RenderSurfaceDescription {
         IWindow* window;
     };
 
-    class ISurface {
+    class IRenderSurface {
       public:
-        virtual ~ISurface() = 0;
+        virtual ~IRenderSurface() = 0;
 
-        ISurface(const ISurface&) = delete;
-        ISurface& operator=(const ISurface&) = delete;
+        IRenderSurface(const IRenderSurface&) = delete;
+        IRenderSurface& operator=(const IRenderSurface&) = delete;
 
-        virtual std::vector<SurfaceFormat> getSupportedFormats(
+        virtual std::vector<RenderSurfaceFormat> getSupportedFormats(
             const IPhysicalDevice& physicalDevice) const
             = 0;
 
       protected:
-        ISurface() = default;
-        ISurface(ISurface&&) noexcept = default;
-        ISurface& operator=(ISurface&&) noexcept = default;
+        IRenderSurface() = default;
+        IRenderSurface(IRenderSurface&&) noexcept = default;
+        IRenderSurface& operator=(IRenderSurface&&) noexcept = default;
     };
 }  // namespace aetherion

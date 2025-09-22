@@ -9,11 +9,11 @@
 namespace aetherion {
     // Forward declarations
     class IDescriptorSetLayout;
-    class IImage;
+    class IRenderImage;
     class ISampler;
-    class IBufferView;
-    class IImageView;
-    class IBuffer;
+    class IRenderBufferView;
+    class IRenderImageView;
+    class IRenderBuffer;
     class IDescriptorPool;
     class IDescriptorSet;
     class IPushConstantRange;
@@ -27,14 +27,14 @@ namespace aetherion {
     class IGPUBinarySemaphore;
     class IGPUTimelineSemaphore;
     class IQueue;
-    class ISurface;
+    class IRenderSurface;
     class IWindow;
     struct CommandPoolDescription;
     struct CommandBufferDescription;
     struct BufferDescription;
-    struct BufferViewDescription;
+    struct RenderBufferViewDescription;
     struct ImageDescription;
-    struct ImageViewDescription;
+    struct RenderImageViewDescription;
     struct SamplerDescription;
     struct ShaderDescription;
     struct PipelineLayoutDescription;
@@ -85,19 +85,19 @@ namespace aetherion {
     };
 
     struct DescriptorWriteDescriptorImageDescription {
-        IImageView* imageView{};
+        IRenderImageView* imageView{};
         ISampler* sampler{};
-        ImageLayout imageLayout = ImageLayout::Undefined;
+        RenderImageLayout imageLayout = RenderImageLayout::Undefined;
     };
 
     struct DescriptorWriteDescriptorBufferDescription {
-        IBuffer* buffer{};
+        IRenderBuffer* buffer{};
         size_t offset = 0;
         size_t range = WHOLE_BUFFER_SIZE;
     };
 
     struct DescriptorWriteDescriptorTexelBufferViewDescription {
-        IBufferView* bufferView;
+        IRenderBufferView* bufferView;
     };
 
     struct DescriptorWriteDescription {
@@ -160,15 +160,17 @@ namespace aetherion {
             ICommandPool& pool, std::span<std::reference_wrapper<ICommandBuffer>> commandBuffers)
             = 0;
 
-        virtual std::unique_ptr<IBuffer> createBuffer(const BufferDescription& description) = 0;
-
-        virtual std::unique_ptr<IBufferView> createBufferView(
-            const BufferViewDescription& description)
+        virtual std::unique_ptr<IRenderBuffer> createBuffer(const BufferDescription& description)
             = 0;
 
-        virtual std::unique_ptr<IImage> createImage(const ImageDescription& description) = 0;
+        virtual std::unique_ptr<IRenderBufferView> createBufferView(
+            const RenderBufferViewDescription& description)
+            = 0;
 
-        virtual std::unique_ptr<IImageView> createImageView(const ImageViewDescription& description)
+        virtual std::unique_ptr<IRenderImage> createImage(const ImageDescription& description) = 0;
+
+        virtual std::unique_ptr<IRenderImageView> createImageView(
+            const RenderImageViewDescription& description)
             = 0;
 
         virtual std::unique_ptr<ISampler> createSampler(const SamplerDescription& description) = 0;

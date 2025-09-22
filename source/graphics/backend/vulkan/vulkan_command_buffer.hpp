@@ -65,8 +65,8 @@ namespace aetherion {
         void setViewport(Rect2Df viewport, float minDepth = 0.0f, float maxDepth = 1.0f) override;
         void setScissor(Rect2Di scissor) override;
 
-        void clear(IImage& image, ImageLayout layout,
-                   const std::vector<ImageRangeDescription>& ranges,
+        void clear(IRenderImage& image, RenderImageLayout layout,
+                   const std::vector<RenderImageRangeDescription>& ranges,
                    const ClearValue& clearValue = ClearValue(ColorClearValue{
                        std::in_place_index<0>,
                        std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}})) override;
@@ -82,9 +82,9 @@ namespace aetherion {
 
         void bindVertexBuffers(uint32_t firstBinding, uint32_t bindingCount,
                                std::span<const VertexBufferBindingDescription> bindings) override;
-        void bindIndexBuffer(IBuffer& buffer, size_t offset, IndexType indexType) override;
+        void bindIndexBuffer(IRenderBuffer& buffer, size_t offset, IndexType indexType) override;
 
-        void copyBuffer(IBuffer& src, IBuffer& dst,
+        void copyBuffer(IRenderBuffer& src, IRenderBuffer& dst,
                         const std::vector<BufferCopyRegion>& regions) override;
 
         void barrier(std::span<const GeneralMemoryBarrierDescription> generalBarriers,

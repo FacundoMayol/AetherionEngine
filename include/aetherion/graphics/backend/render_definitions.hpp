@@ -212,7 +212,7 @@ namespace aetherion {
 
     // --- Buffer ---
 
-    enum class BufferUsage : FlagType {
+    enum class RenderBufferUsage : FlagType {
         None = 0,
         TransferSrc = 1 << 0,
         TransferDst = 1 << 1,
@@ -224,7 +224,7 @@ namespace aetherion {
         Index = 1 << 7,
         Indirect = 1 << 8
     };
-    DECLARE_FLAG_ENUM(BufferUsage)
+    DECLARE_FLAG_ENUM(RenderBufferUsage)
 
     enum class RenderBufferType { Vertex, Index, Uniform, Storage };
 
@@ -232,7 +232,7 @@ namespace aetherion {
 
     // --- Image ---
 
-    enum class ImageLayout {
+    enum class RenderImageLayout {
         Undefined,
         General,
         ColorAttachmentOptimal,
@@ -245,9 +245,17 @@ namespace aetherion {
         PresentSource
     };
 
-    enum class ImageType { Tex1d, Tex2d, Tex3d };
+    enum class RenderImageType { Tex1d, Tex2d, Tex3d };
 
-    enum class ImageViewType { Tex1d, Tex1dArray, Tex2d, Tex2dArray, TexCube, TexCubeArray, Tex3d };
+    enum class RenderImageViewType {
+        Tex1d,
+        Tex1dArray,
+        Tex2d,
+        Tex2dArray,
+        TexCube,
+        TexCubeArray,
+        Tex3d
+    };
 
     enum class ColorSpace {
         SrgbNonlinear,
@@ -264,7 +272,7 @@ namespace aetherion {
 
     enum class ComponentSwizzle { Identity, Zero, One, R, G, B, A };
 
-    enum class ImageUsage : FlagType {
+    enum class RenderImageUsage : FlagType {
         None = 0,
         Sampled = 1 << 0,
         Storage = 1 << 1,
@@ -275,18 +283,18 @@ namespace aetherion {
         InputAttachment = 1 << 6,
         TransientAttachment = 1 << 7
     };
-    DECLARE_FLAG_ENUM(ImageUsage)
+    DECLARE_FLAG_ENUM(RenderImageUsage)
 
-    enum class ImageTiling { Optimal, Linear };
+    enum class RenderImageTiling { Optimal, Linear };
 
-    enum class ImageAspect : FlagType {
+    enum class RenderImageAspect : FlagType {
         None = 0,
         Color = 1 << 0,
         Depth = 1 << 1,
         Stencil = 1 << 2,
         Metadata = 1 << 3
     };
-    DECLARE_FLAG_ENUM(ImageAspect)
+    DECLARE_FLAG_ENUM(RenderImageAspect)
 
     enum class CubeFace { PositiveX, NegativeX, PositiveY, NegativeY, PositiveZ, NegativeZ };
 
@@ -299,7 +307,7 @@ namespace aetherion {
         NegativeZ = 5
     };
 
-    struct SurfaceFormat {
+    struct RenderSurfaceFormat {
         Format imageFormat;
         ColorSpace colorSpace;
     };
@@ -335,16 +343,16 @@ namespace aetherion {
         MirrorClampToEdge
     };
 
-    struct ImageRangeDescription {
+    struct RenderImageRangeDescription {
         uint32_t baseArrayLayer = 0;
         uint32_t layerCount = 1;
         uint32_t baseMipLevel = 0;
         uint32_t mipLevelCount = 1;
     };
 
-    struct ImageSubresourceDescription {
-        ImageAspectFlags aspectMask = ImageAspect::Color;
-        ImageRangeDescription range;
+    struct RenderImageSubresourceDescription {
+        RenderImageAspectFlags aspectMask = RenderImageAspect::Color;
+        RenderImageRangeDescription range;
     };
 
     // --- Render Pass / Attachment ---

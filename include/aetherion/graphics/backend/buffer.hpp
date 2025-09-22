@@ -9,7 +9,7 @@ namespace aetherion {
     struct BufferDescription {
         size_t size;
         MemoryUsage memoryUsage;
-        BufferUsageFlags usages;
+        RenderBufferUsageFlags usages;
         AllocationAccessType allocationAccess;
         SharingMode sharingMode;
         std::vector<uint32_t> queueFamilies;
@@ -17,20 +17,19 @@ namespace aetherion {
         bool persistentMapping = false;
     };
 
-    class IBuffer : public IResource {
+    class IRenderBuffer : public IRenderResource {
       public:
-        ~IBuffer() override = 0;
+        ~IRenderBuffer() override = 0;
 
-        IBuffer(const IBuffer&) = delete;
-        IBuffer& operator=(const IBuffer&) = delete;
+        IRenderBuffer(const IRenderBuffer&) = delete;
+        IRenderBuffer& operator=(const IRenderBuffer&) = delete;
 
         virtual void* map() = 0;
         virtual void unmap() = 0;
 
       protected:
-        IBuffer() = default;
-        IBuffer(IBuffer&&) noexcept = default;
-        IBuffer& operator=(IBuffer&&) noexcept = default;
+        IRenderBuffer() = default;
+        IRenderBuffer(IRenderBuffer&&) noexcept = default;
+        IRenderBuffer& operator=(IRenderBuffer&&) noexcept = default;
     };
-
 }  // namespace aetherion

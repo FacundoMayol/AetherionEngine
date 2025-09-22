@@ -35,7 +35,7 @@ namespace aetherion {
     VulkanBuffer::~VulkanBuffer() noexcept { clear(); }
 
     VulkanBuffer::VulkanBuffer(VulkanBuffer&& other) noexcept
-        : IBuffer(std::move(other)),
+        : IRenderBuffer(std::move(other)),
           device_(other.device_),
           allocator_(other.allocator_),
           buffer_(other.buffer_),
@@ -50,7 +50,7 @@ namespace aetherion {
         if (this != &other) {
             clear();
 
-            IBuffer::operator=(std::move(other));
+            IRenderBuffer::operator=(std::move(other));
             device_ = other.device_;
             allocator_ = other.allocator_;
             buffer_ = other.buffer_;

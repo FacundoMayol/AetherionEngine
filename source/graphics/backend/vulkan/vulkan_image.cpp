@@ -24,7 +24,7 @@ namespace aetherion {
                                                 : vk::ImageCreateFlags())
                     | (description.arrayCompatible ? vk::ImageCreateFlagBits::e2DArrayCompatible
                                                    : vk::ImageCreateFlags())
-                    | (description.type == ImageType::Tex3d
+                    | (description.type == RenderImageType::Tex3d
                            ? vk::ImageCreateFlagBits::e2DArrayCompatible  // Assuming this usage.
                            : vk::ImageCreateFlags())),
             vma::AllocationCreateInfo().setUsage(toVmaMemoryUsage(description.memoryUsage)));
@@ -37,7 +37,7 @@ namespace aetherion {
     VulkanImage::~VulkanImage() noexcept { clear(); }
 
     VulkanImage::VulkanImage(VulkanImage&& other) noexcept
-        : IImage(std::move(other)),
+        : IRenderImage(std::move(other)),
           device_(other.device_),
           image_(other.image_),
           allocation_(other.allocation_) {
@@ -50,7 +50,7 @@ namespace aetherion {
         if (this != &other) {
             clear();
 
-            IImage::operator=(std::move(other));
+            IRenderImage::operator=(std::move(other));
             device_ = other.device_;
             image_ = other.image_;
             allocation_ = other.allocation_;

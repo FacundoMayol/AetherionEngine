@@ -8,19 +8,19 @@
 
 namespace aetherion {
     // Forward declarations
-    class IImage;
-    class IImageView;
+    class IRenderImage;
+    class IRenderImageView;
     class IGPUBinarySemaphore;
     class IGPUFence;
-    class ISurface;
+    class IRenderSurface;
 
     struct SwapchainDescription {
-        const ISurface* surface;
+        const IRenderSurface* surface;
         uint32_t minImageCount = 3;
-        SurfaceFormat surfaceFormat;
+        RenderSurfaceFormat surfaceFormat;
         Extent2Du extent;
         uint32_t arrayLayers = 1;
-        ImageUsageFlags imageUsages = ImageUsage::None;
+        RenderImageUsageFlags imageUsages = RenderImageUsage::None;
         SharingMode sharingMode;
         std::vector<uint32_t> queueFamilyIndices;
         PresentMode presentMode;
@@ -40,7 +40,7 @@ namespace aetherion {
 
         virtual uint32_t getImageCount() const = 0;
 
-        virtual IImage& getImage(uint32_t index) = 0;
+        virtual IRenderImage& getImage(uint32_t index) = 0;
 
       protected:
         ISwapchain() = default;

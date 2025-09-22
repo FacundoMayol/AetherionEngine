@@ -5,25 +5,25 @@
 
 namespace aetherion {
     // Forward declarations
-    class IBuffer;
+    class IRenderBuffer;
 
-    struct BufferViewDescription {
-        IBuffer* buffer{};
+    struct RenderBufferViewDescription {
+        IRenderBuffer* buffer{};
         Format format = Format::Undefined;  // NOTE: Ignored if buffer is not a texel buffer.
         uint32_t offset = 0;
         uint32_t range = 0;
     };
 
-    class IBufferView : public IResource {
+    class IRenderBufferView : public IRenderResource {
       public:
-        ~IBufferView() override = 0;
+        ~IRenderBufferView() override = 0;
 
-        IBufferView(const IBufferView&) = delete;
-        IBufferView& operator=(const IBufferView&) = delete;
+        IRenderBufferView(const IRenderBufferView&) = delete;
+        IRenderBufferView& operator=(const IRenderBufferView&) = delete;
 
       protected:
-        IBufferView() = default;
-        IBufferView(IBufferView&&) noexcept = default;
-        IBufferView& operator=(IBufferView&&) noexcept = default;
+        IRenderBufferView() = default;
+        IRenderBufferView(IRenderBufferView&&) noexcept = default;
+        IRenderBufferView& operator=(IRenderBufferView&&) noexcept = default;
     };
 }  // namespace aetherion

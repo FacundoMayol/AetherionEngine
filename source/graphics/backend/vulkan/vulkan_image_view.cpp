@@ -5,10 +5,11 @@
 #include "vulkan_render_definitions.hpp"
 
 namespace aetherion {
-    VulkanImageView::VulkanImageView(VulkanDevice& device, const ImageViewDescription& description)
+    VulkanImageView::VulkanImageView(VulkanDevice& device,
+                                     const RenderImageViewDescription& description)
         : device_(device.getVkDevice()) {
         if (!description.image) {
-            throw std::invalid_argument("Image in ImageViewDescription is null.");
+            throw std::invalid_argument("Image in RenderImageViewDescription is null.");
         }
 
         auto& vkImage = dynamic_cast<VulkanImage&>(*description.image);
@@ -38,7 +39,7 @@ namespace aetherion {
     VulkanImageView::~VulkanImageView() noexcept { clear(); }
 
     VulkanImageView::VulkanImageView(VulkanImageView&& other) noexcept
-        : IImageView(std::move(other)), device_(other.device_), imageView_(other.imageView_) {
+        : IRenderImageView(std::move(other)), device_(other.device_), imageView_(other.imageView_) {
         other.device_ = nullptr;
         other.imageView_ = nullptr;
     }
@@ -47,7 +48,7 @@ namespace aetherion {
         if (this != &other) {
             clear();
 
-            IImageView::operator=(std::move(other));
+            IRenderImageView::operator=(std::move(other));
             device_ = other.device_;
             imageView_ = other.imageView_;
 

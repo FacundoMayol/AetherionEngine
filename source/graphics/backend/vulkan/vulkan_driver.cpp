@@ -71,7 +71,8 @@ namespace aetherion {
         return std::make_unique<VulkanDevice>(*this, deviceDescription);
     }
 
-    std::unique_ptr<ISurface> VulkanDriver::createSurface(const SurfaceDescription& description) {
+    std::unique_ptr<IRenderSurface> VulkanDriver::createSurface(
+        const RenderSurfaceDescription& description) {
         return std::make_unique<VulkanSurface>(*this, description);
     }
 }  // namespace aetherion

@@ -6,10 +6,10 @@
 
 namespace aetherion {
     VulkanBufferView::VulkanBufferView(VulkanDevice& device,
-                                       const BufferViewDescription& description)
+                                       const RenderBufferViewDescription& description)
         : device_(device.getVkDevice()) {
         if (!description.buffer) {
-            throw std::invalid_argument("Buffer in BufferViewDescription is null.");
+            throw std::invalid_argument("Buffer in RenderBufferViewDescription is null.");
         }
 
         auto& vkBuffer = dynamic_cast<VulkanBuffer&>(*description.buffer);
@@ -27,7 +27,9 @@ namespace aetherion {
     VulkanBufferView::~VulkanBufferView() noexcept { clear(); }
 
     VulkanBufferView::VulkanBufferView(VulkanBufferView&& other) noexcept
-        : IBufferView(std::move(other)), device_(other.device_), bufferView_(other.bufferView_) {
+        : IRenderBufferView(std::move(other)),
+          device_(other.device_),
+          bufferView_(other.bufferView_) {
         other.device_ = nullptr;
         other.bufferView_ = nullptr;
     }
@@ -36,7 +38,7 @@ namespace aetherion {
         if (this != &other) {
             clear();
 
-            IBufferView::operator=(std::move(other));
+            IRenderBufferView::operator=(std::move(other));
             device_ = other.device_;
             bufferView_ = other.bufferView_;
 

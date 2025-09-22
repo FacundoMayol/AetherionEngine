@@ -17,7 +17,7 @@ namespace aetherion {
         bool signaled = false;
     };
 
-    class IGPUFence : public IResource {
+    class IGPUFence : public IRenderResource {
       public:
         ~IGPUFence() override = 0;
 
@@ -34,7 +34,7 @@ namespace aetherion {
         IGPUFence& operator=(IGPUFence&&) noexcept = default;
     };
 
-    class IGPUBinarySemaphore : public IResource {
+    class IGPUBinarySemaphore : public IRenderResource {
       public:
         ~IGPUBinarySemaphore() override = 0;
 
@@ -47,7 +47,7 @@ namespace aetherion {
         IGPUBinarySemaphore& operator=(IGPUBinarySemaphore&&) noexcept = default;
     };
 
-    class IGPUTimelineSemaphore : public IResource {
+    class IGPUTimelineSemaphore : public IRenderResource {
       public:
         ~IGPUTimelineSemaphore() override = 0;
 

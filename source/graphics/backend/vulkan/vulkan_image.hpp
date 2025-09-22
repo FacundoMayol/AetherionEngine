@@ -9,7 +9,7 @@ namespace aetherion {
     // Forward declarations
     class VulkanDevice;
 
-    class VulkanImage : public IImage {
+    class VulkanImage : public IRenderImage {
       public:
         VulkanImage() = delete;
         VulkanImage(VulkanDevice& device, const ImageDescription& description);

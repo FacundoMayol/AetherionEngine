@@ -9,7 +9,7 @@ namespace aetherion {
         std::span<const std::byte> code;
     };
 
-    class IShader : public IResource {
+    class IShader : public IRenderResource {
       public:
         ~IShader() override = 0;
 

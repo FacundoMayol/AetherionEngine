@@ -9,10 +9,10 @@ namespace aetherion {
     class VulkanDevice;
     class VulkanImage;
 
-    class VulkanImageView : public IImageView {
+    class VulkanImageView : public IRenderImageView {
       public:
         VulkanImageView() = delete;
-        VulkanImageView(VulkanDevice& device, const ImageViewDescription& description);
+        VulkanImageView(VulkanDevice& device, const RenderImageViewDescription& description);
         VulkanImageView(vk::Device device, vk::ImageView imageView);
         ~VulkanImageView() noexcept override;
 

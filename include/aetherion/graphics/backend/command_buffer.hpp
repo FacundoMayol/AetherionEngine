@@ -10,9 +10,9 @@
 
 namespace aetherion {
     // Forward declarations
-    class IImage;
-    class IImageView;
-    class IBuffer;
+    class IRenderImage;
+    class IRenderImageView;
+    class IRenderBuffer;
     class IPipeline;
     class IPipelineLayout;
     class IDescriptorSet;
@@ -30,19 +30,19 @@ namespace aetherion {
     };
 
     struct VertexBufferBindingDescription {
-        IBuffer* buffer;
+        IRenderBuffer* buffer;
         size_t offset;
         size_t size;
         size_t stride;
     };
 
     struct AttachmentDescription {
-        IImage* image;
-        IImageView* imageView;
-        ImageLayout imageLayout;
+        IRenderImage* image;
+        IRenderImageView* imageView;
+        RenderImageLayout imageLayout;
         ResolveMode resolveMode = ResolveMode::None;
-        IImageView* resolveImageView;  // Optional, used if resolveMode is not None.
-        ImageLayout resolveImageLayout = ImageLayout::Undefined;
+        IRenderImageView* resolveImageView;  // Optional, used if resolveMode is not None.
+        RenderImageLayout resolveImageLayout = RenderImageLayout::Undefined;
         AttachmentLoadOp loadOp = AttachmentLoadOp::Clear;
         AttachmentStoreOp storeOp = AttachmentStoreOp::Store;
         ClearValue clearValue = ClearValue(
@@ -66,7 +66,7 @@ namespace aetherion {
     };
 
     struct BufferBarrierDescription {
-        IBuffer* buffer;
+        IRenderBuffer* buffer;
         PipelineStageFlags srcStageFlags = {};
         AccessTypeFlags srcAccessFlags = {};
         PipelineStageFlags dstStageFlags = {};
@@ -78,16 +78,16 @@ namespace aetherion {
     };
 
     struct ImageBarrierDescription {
-        IImage* image;
-        ImageLayout oldLayout = ImageLayout::Undefined;
-        ImageLayout newLayout = ImageLayout::Undefined;
+        IRenderImage* image;
+        RenderImageLayout oldLayout = RenderImageLayout::Undefined;
+        RenderImageLayout newLayout = RenderImageLayout::Undefined;
         PipelineStageFlags srcStageFlags = {};
         AccessTypeFlags srcAccessFlags = {};
         PipelineStageFlags dstStageFlags = {};
         AccessTypeFlags dstAccessFlags = {};
         uint32_t srcQueueFamilyIndex = 0;
         uint32_t dstQueueFamilyIndex = 0;
-        ImageSubresourceDescription subresource = {};
+        RenderImageSubresourceDescription subresource = {};
     };
 
     struct CommandBufferDescription {
@@ -126,8 +126,8 @@ namespace aetherion {
         // TODO: Handle multiple scissors.
         virtual void setScissor(Rect2Di scissor) = 0;
 
-        virtual void clear(IImage& image, ImageLayout layout,
-                           const std::vector<ImageRangeDescription>& ranges,
+        virtual void clear(IRenderImage& image, RenderImageLayout layout,
+                           const std::vector<RenderImageRangeDescription>& ranges,
                            const ClearValue& clearValue = ClearValue(ColorClearValue{
                                std::in_place_index<0>,
                                std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}}))
@@ -147,9 +147,9 @@ namespace aetherion {
         virtual void bindVertexBuffers(uint32_t firstBinding, uint32_t bindingCount,
                                        std::span<const VertexBufferBindingDescription> bindings)
             = 0;
-        virtual void bindIndexBuffer(IBuffer& buffer, size_t offset, IndexType indexType) = 0;
+        virtual void bindIndexBuffer(IRenderBuffer& buffer, size_t offset, IndexType indexType) = 0;
 
-        virtual void copyBuffer(IBuffer& src, IBuffer& dst,
+        virtual void copyBuffer(IRenderBuffer& src, IRenderBuffer& dst,
                                 const std::vector<BufferCopyRegion>& regions)
             = 0;
 

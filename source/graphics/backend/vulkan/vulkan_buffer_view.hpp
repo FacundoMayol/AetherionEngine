@@ -9,10 +9,10 @@ namespace aetherion {
     class VulkanDevice;
     class VulkanBuffer;
 
-    class VulkanBufferView : public IBufferView {
+    class VulkanBufferView : public IRenderBufferView {
       public:
         VulkanBufferView() = delete;
-        VulkanBufferView(VulkanDevice& device, const BufferViewDescription& description);
+        VulkanBufferView(VulkanDevice& device, const RenderBufferViewDescription& description);
         VulkanBufferView(vk::Device device, vk::BufferView bufferView);
         ~VulkanBufferView() noexcept override;
 

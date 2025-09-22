@@ -269,17 +269,18 @@ namespace aetherion {
 
     void VulkanDevice::waitIdle() { device_.waitIdle(); }
 
-    std::unique_ptr<IBuffer> VulkanDevice::createBuffer(const BufferDescription& description) {
+    std::unique_ptr<IRenderBuffer> VulkanDevice::createBuffer(
+        const BufferDescription& description) {
         return std::make_unique<VulkanBuffer>(*this, description);
     }
 
-    std::unique_ptr<IBufferView> VulkanDevice::createBufferView(
-        const BufferViewDescription& description) {
+    std::unique_ptr<IRenderBufferView> VulkanDevice::createBufferView(
+        const RenderBufferViewDescription& description) {
         return std::make_unique<VulkanBufferView>(*this, description);
     }
 
-    std::unique_ptr<IImageView> VulkanDevice::createImageView(
-        const ImageViewDescription& description) {
+    std::unique_ptr<IRenderImageView> VulkanDevice::createImageView(
+        const RenderImageViewDescription& description) {
         return std::make_unique<VulkanImageView>(*this, description);
     }
 
@@ -306,7 +307,7 @@ namespace aetherion {
                                                 commandBuffers);
     }
 
-    std::unique_ptr<IImage> VulkanDevice::createImage(const ImageDescription& description) {
+    std::unique_ptr<IRenderImage> VulkanDevice::createImage(const ImageDescription& description) {
         return std::make_unique<VulkanImage>(*this, description);
     }
 
