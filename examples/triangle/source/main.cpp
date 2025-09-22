@@ -19,8 +19,7 @@ class Triangle : public Game {
         m_fragmentShader = m_driver->createShader(std::make_shared<ShaderData>(fragmentShaderData),
                                                   ShaderStage::Fragment);
 
-        std::shared_ptr<RenderPipelineLayout> layout
-            = m_driver->createRenderPipelineLayout({{}, {}});
+        std::shared_ptr<GPUPipelineLayout> layout = m_driver->createGPUPipelineLayout({{}, {}});
 
         m_pipeline = m_driver->createGraphicsPipeline(
             {
@@ -161,7 +160,7 @@ class Triangle : public Game {
     std::shared_ptr<RenderSurface> m_primarySurface;
     std::shared_ptr<Shader> m_vertexShader;
     std::shared_ptr<Shader> m_fragmentShader;
-    std::shared_ptr<RenderPipeline> m_pipeline;
+    std::shared_ptr<GPUPipeline> m_pipeline;
 
     uint32_t m_frameCount = 0;
 };

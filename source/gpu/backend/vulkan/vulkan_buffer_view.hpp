@@ -1,0 +1,35 @@
+#pragma once
+
+#include <vulkan/vulkan.hpp>
+
+#include "aetherion/gpu/backend/buffer_view.hpp"
+
+namespace aetherion {
+    // Forward declarations
+    class VulkanDevice;
+    class VulkanBuffer;
+
+    class VulkanBufferView : public IGPUBufferView {
+      public:
+        VulkanBufferView() = delete;
+        VulkanBufferView(VulkanDevice& device, const GPUBufferViewDescription& description);
+        VulkanBufferView(vk::Device device, vk::BufferView bufferView);
+        ~VulkanBufferView() noexcept override;
+
+        VulkanBufferView(const VulkanBufferView&) = delete;
+        VulkanBufferView& operator=(const VulkanBufferView&) = delete;
+
+        VulkanBufferView(VulkanBufferView&&) noexcept;
+        VulkanBufferView& operator=(VulkanBufferView&&) noexcept;
+
+        inline vk::BufferView getVkBufferView() const { return bufferView_; }
+
+        void clear() noexcept;
+        void release() noexcept;
+
+      private:
+        vk::Device device_;
+
+        vk::BufferView bufferView_;
+    };
+}  // namespace aetherion
