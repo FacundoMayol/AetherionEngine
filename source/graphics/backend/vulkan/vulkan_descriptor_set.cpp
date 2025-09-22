@@ -6,7 +6,7 @@
 namespace aetherion {
     VulkanDescriptorSetLayout::VulkanDescriptorSetLayout(
         VulkanDevice& device, const DescriptorSetLayoutDescription& description)
-        : device_(&device) {
+        : device_(device.getVkDevice()) {
         std::vector<vk::DescriptorSetLayoutBinding> vkBindings;
         vkBindings.reserve(description.bindings.size());
 
@@ -19,13 +19,13 @@ namespace aetherion {
                                      .setPImmutableSamplers(nullptr));
         }
 
-        descriptorSetLayout_ = device_->getVkDevice().createDescriptorSetLayout(
+        descriptorSetLayout_ = device_.createDescriptorSetLayout(
             vk::DescriptorSetLayoutCreateInfo().setBindings(vkBindings));
     }
 
     VulkanDescriptorSetLayout::VulkanDescriptorSetLayout(
-        VulkanDevice& device, vk::DescriptorSetLayout descriptorSetLayout)
-        : device_(&device), descriptorSetLayout_(descriptorSetLayout) {}
+        vk::Device device, vk::DescriptorSetLayout descriptorSetLayout)
+        : device_(device), descriptorSetLayout_(descriptorSetLayout) {}
 
     VulkanDescriptorSetLayout::~VulkanDescriptorSetLayout() noexcept { clear(); }
 
@@ -53,7 +53,7 @@ namespace aetherion {
 
     void VulkanDescriptorSetLayout::clear() noexcept {
         if (descriptorSetLayout_ && device_) {
-            device_->getVkDevice().destroyDescriptorSetLayout(descriptorSetLayout_);
+            device_.destroyDescriptorSetLayout(descriptorSetLayout_);
             descriptorSetLayout_ = nullptr;
         }
         device_ = nullptr;
@@ -65,7 +65,7 @@ namespace aetherion {
     }
 
     std::vector<std::unique_ptr<IDescriptorSet>> VulkanDescriptorSet::allocateDescriptorSets(
-        VulkanDevice& device, VulkanDescriptorPool& pool,
+        vk::Device device, vk::DescriptorPool pool,
         std::span<const DescriptorSetDescription> descriptions) {
         std::vector<vk::DescriptorSetLayout> vkLayouts;
         vkLayouts.reserve(descriptions.size());
@@ -79,10 +79,8 @@ namespace aetherion {
             vkLayouts.push_back(vkLayout->getVkDescriptorSetLayout());
         }
 
-        auto result = device.getVkDevice().allocateDescriptorSets(
-            vk::DescriptorSetAllocateInfo()
-                .setDescriptorPool(pool.getVkDescriptorPool())
-                .setSetLayouts(vkLayouts));
+        auto result = device.allocateDescriptorSets(
+            vk::DescriptorSetAllocateInfo().setDescriptorPool(pool).setSetLayouts(vkLayouts));
 
         std::vector<std::unique_ptr<IDescriptorSet>> descriptorSets;
         descriptorSets.reserve(result.size());
@@ -97,7 +95,9 @@ namespace aetherion {
 
     VulkanDescriptorSet::VulkanDescriptorSet(VulkanDevice& device, VulkanDescriptorPool& pool,
                                              const DescriptorSetDescription& description)
-        : device_(&device), pool_(&pool) {
+        : device_(device.getVkDevice()),
+          pool_(pool.getVkDescriptorPool()),
+          shouldFreeDescriptorSet(pool.supportsFreeDescriptorSet()) {
         if (!description.layout) {
             throw std::invalid_argument("layout in DescriptorSetDescription is null.");
         }
@@ -105,27 +105,34 @@ namespace aetherion {
 
         auto vkLayoutHandle = vkLayout->getVkDescriptorSetLayout();
 
-        auto result = device_->getVkDevice().allocateDescriptorSets(
-            vk::DescriptorSetAllocateInfo()
-                .setDescriptorPool(pool.getVkDescriptorPool())
-                .setDescriptorSetCount(1)
-                .setPSetLayouts(&vkLayoutHandle));
+        auto result
+            = device_.allocateDescriptorSets(vk::DescriptorSetAllocateInfo()
+                                                 .setDescriptorPool(pool.getVkDescriptorPool())
+                                                 .setDescriptorSetCount(1)
+                                                 .setPSetLayouts(&vkLayoutHandle));
 
         descriptorSet_ = result.front();
     }
 
-    VulkanDescriptorSet::VulkanDescriptorSet(VulkanDevice& device, VulkanDescriptorPool& pool,
-                                             vk::DescriptorSet descriptorSet)
-        : device_(&device), pool_(&pool), descriptorSet_(descriptorSet) {}
+    VulkanDescriptorSet::VulkanDescriptorSet(vk::Device device, vk::DescriptorPool pool,
+                                             vk::DescriptorSet descriptorSet, bool shouldFree)
+        : device_(device),
+          pool_(pool),
+          descriptorSet_(descriptorSet),
+          shouldFreeDescriptorSet(shouldFree) {}
 
     VulkanDescriptorSet::~VulkanDescriptorSet() noexcept { clear(); }
 
     VulkanDescriptorSet::VulkanDescriptorSet(VulkanDescriptorSet&& other) noexcept
         : IDescriptorSet(std::move(other)),
           device_(other.device_),
-          descriptorSet_(other.descriptorSet_) {
+          pool_(other.pool_),
+          descriptorSet_(other.descriptorSet_),
+          shouldFreeDescriptorSet(other.shouldFreeDescriptorSet) {
         other.device_ = nullptr;
+        other.pool_ = nullptr;
         other.descriptorSet_ = nullptr;
+        other.shouldFreeDescriptorSet = false;
     }
 
     VulkanDescriptorSet& VulkanDescriptorSet::operator=(VulkanDescriptorSet&& other) noexcept {
@@ -134,7 +141,9 @@ namespace aetherion {
 
             IDescriptorSet::operator=(std::move(other));
             device_ = other.device_;
+            pool_ = other.pool_;
             descriptorSet_ = other.descriptorSet_;
+            shouldFreeDescriptorSet = other.shouldFreeDescriptorSet;
 
             other.release();
         }
@@ -142,39 +151,39 @@ namespace aetherion {
     }
 
     void VulkanDescriptorSet::clear() noexcept {
-        if (descriptorSet_ && device_ && pool_ && pool_->supportsFreeDescriptorSet()) {
-            device_->getVkDevice().freeDescriptorSets(pool_->getVkDescriptorPool(), 1,
-                                                      &descriptorSet_);
+        if (descriptorSet_ && device_ && pool_ && shouldFreeDescriptorSet) {
+            device_.freeDescriptorSets(pool_, 1, &descriptorSet_);
             descriptorSet_ = nullptr;
         }
         device_ = nullptr;
         pool_ = nullptr;
+        shouldFreeDescriptorSet = false;
     }
 
     void VulkanDescriptorSet::release() noexcept {
         descriptorSet_ = nullptr;
         device_ = nullptr;
         pool_ = nullptr;
+        shouldFreeDescriptorSet = false;
     }
 
     void VulkanDescriptorSet::freeDescriptorSets(
-        VulkanDevice& device, VulkanDescriptorPool& pool,
-        std::span<std::reference_wrapper<IDescriptorSet>> descriptorSets) {
+        vk::Device device, vk::DescriptorPool pool,
+        std::span<std::reference_wrapper<VulkanDescriptorSet>> descriptorSets) {
         std::vector<vk::DescriptorSet> vkDescriptorSets;
         vkDescriptorSets.reserve(descriptorSets.size());
 
-        for (const auto& descriptorSet : descriptorSets) {
-            auto& vkDescriptorSet = dynamic_cast<VulkanDescriptorSet&>(descriptorSet.get());
-            vkDescriptorSets.push_back(vkDescriptorSet.getVkDescriptorSet());
-            vkDescriptorSet.release();
+        for (auto& descriptorSet : descriptorSets) {
+            vkDescriptorSets.push_back(descriptorSet.get().getVkDescriptorSet());
+            descriptorSet.get().release();
         }
 
-        device.getVkDevice().freeDescriptorSets(pool.getVkDescriptorPool(), vkDescriptorSets);
+        device.freeDescriptorSets(pool, vkDescriptorSets);
     }
 
     VulkanDescriptorPool::VulkanDescriptorPool(VulkanDevice& device,
                                                const DescriptorPoolDescription& description)
-        : device_(&device) {
+        : device_(device.getVkDevice()) {
         std::vector<vk::DescriptorPoolSize> poolSizes;
         poolSizes.reserve(description.poolSizes.size());
         for (const auto& size : description.poolSizes) {
@@ -189,13 +198,15 @@ namespace aetherion {
                   .setPoolSizes(poolSizes)
                   .setFlags(toVkDescriptorPoolCreateFlags(description.flags));
 
-        descriptorPool_ = device_->getVkDevice().createDescriptorPool(poolCreateInfo);
+        descriptorPool_ = device_.createDescriptorPool(poolCreateInfo);
+
+        freeDescriptorSetSupport_
+            = description.flags.contains(DescriptorPoolBehavior::FreeIndividualSets);
     }
 
-    VulkanDescriptorPool::VulkanDescriptorPool(VulkanDevice& device,
-                                               vk::DescriptorPool descriptorPool,
+    VulkanDescriptorPool::VulkanDescriptorPool(vk::Device device, vk::DescriptorPool descriptorPool,
                                                bool freeDescriptorSetSupport)
-        : device_(&device),
+        : device_(device),
           descriptorPool_(descriptorPool),
           freeDescriptorSetSupport_(freeDescriptorSetSupport) {}
 
@@ -225,13 +236,11 @@ namespace aetherion {
         return *this;
     }
 
-    void VulkanDescriptorPool::reset() {
-        device_->getVkDevice().resetDescriptorPool(descriptorPool_);
-    }
+    void VulkanDescriptorPool::reset() { device_.resetDescriptorPool(descriptorPool_); }
 
     void VulkanDescriptorPool::clear() noexcept {
         if (descriptorPool_ && device_) {
-            device_->getVkDevice().destroyDescriptorPool(descriptorPool_);
+            device_.destroyDescriptorPool(descriptorPool_);
             descriptorPool_ = nullptr;
         }
         device_ = nullptr;
@@ -246,16 +255,16 @@ namespace aetherion {
 
     VulkanPushConstantRange::VulkanPushConstantRange(
         VulkanDevice& device, const PushConstantRangeDescription& description)
-        : device_(&device) {
+        : device_(device.getVkDevice()) {
         pushConstantRange_ = vk::PushConstantRange()
                                  .setOffset(description.offset)
                                  .setSize(description.size)
                                  .setStageFlags(toVkShaderStageFlags(description.stages));
     }
 
-    VulkanPushConstantRange::VulkanPushConstantRange(VulkanDevice& device,
+    VulkanPushConstantRange::VulkanPushConstantRange(vk::Device device,
                                                      vk::PushConstantRange pushConstantRange)
-        : device_(&device), pushConstantRange_(pushConstantRange) {}
+        : device_(device), pushConstantRange_(pushConstantRange) {}
 
     VulkanPushConstantRange::~VulkanPushConstantRange() noexcept { clear(); }
 

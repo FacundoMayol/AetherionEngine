@@ -244,21 +244,20 @@ namespace aetherion {
 
     VulkanPipelineLayout::VulkanPipelineLayout(VulkanDevice& device,
                                                const PipelineLayoutDescription& description)
-        : device_(&device) {
+        : device_(device.getVkDevice()) {
         auto vkPushConstantRanges = toVkPushConstantRanges(description.pushConstantRanges);
 
         auto vkSetLayouts = toVkDescriptorSetLayouts(description.descriptorSetLayouts);
 
-        pipelineLayout_ = device_->getVkDevice().createPipelineLayout(
-            vk::PipelineLayoutCreateInfo()
-                .setSetLayouts(vkSetLayouts)
-                .setPushConstantRanges(vkPushConstantRanges)
-                .setSetLayouts(vkSetLayouts));
+        pipelineLayout_
+            = device_.createPipelineLayout(vk::PipelineLayoutCreateInfo()
+                                               .setSetLayouts(vkSetLayouts)
+                                               .setPushConstantRanges(vkPushConstantRanges)
+                                               .setSetLayouts(vkSetLayouts));
     }
 
-    VulkanPipelineLayout::VulkanPipelineLayout(VulkanDevice& device,
-                                               vk::PipelineLayout pipelineLayout)
-        : device_(&device), pipelineLayout_(pipelineLayout) {}
+    VulkanPipelineLayout::VulkanPipelineLayout(vk::Device device, vk::PipelineLayout pipelineLayout)
+        : device_(device), pipelineLayout_(pipelineLayout) {}
 
     VulkanPipelineLayout::~VulkanPipelineLayout() noexcept { clear(); }
 
@@ -285,7 +284,7 @@ namespace aetherion {
 
     void VulkanPipelineLayout::clear() noexcept {
         if (pipelineLayout_ && device_) {
-            device_->getVkDevice().destroyPipelineLayout(pipelineLayout_);
+            device_.destroyPipelineLayout(pipelineLayout_);
             pipelineLayout_ = nullptr;
         }
         device_ = nullptr;
@@ -298,13 +297,13 @@ namespace aetherion {
 
     VulkanPipeline::VulkanPipeline(VulkanDevice& device,
                                    const ComputePipelineDescription& description)
-        : device_(&device) {
+        : device_(device.getVkDevice()) {
         if (!description.layout) {
             throw std::invalid_argument("Pipeline layout in ComputePipelineDescription is null.");
         }
         const auto* vkLayout = dynamic_cast<const VulkanPipelineLayout*>(description.layout);
 
-        auto result = device_->getVkDevice().createComputePipeline(
+        auto result = device_.createComputePipeline(
             {}, toVkComputePipelineCreateInfo(vkLayout, description));
         if (result.result != vk::Result::eSuccess) {
             throw std::runtime_error("Failed to create Vulkan compute pipeline.");
@@ -316,13 +315,13 @@ namespace aetherion {
 
     VulkanPipeline::VulkanPipeline(VulkanDevice& device,
                                    const GraphicsPipelineDescription& description)
-        : device_(&device) {
+        : device_(device.getVkDevice()) {
         if (!description.layout) {
             throw std::invalid_argument("Pipeline layout in GraphicsPipelineDescription is null.");
         }
         const auto* vkLayout = dynamic_cast<const VulkanPipelineLayout*>(description.layout);
 
-        auto result = device_->getVkDevice().createGraphicsPipeline(
+        auto result = device_.createGraphicsPipeline(
             {}, toVkGraphicsPipelineCreateInfo(*vkLayout, description));
         if (result.result != vk::Result::eSuccess) {
             throw std::runtime_error("Failed to create Vulkan graphics pipeline.");
@@ -332,9 +331,9 @@ namespace aetherion {
         pipelineType_ = PipelineBindPoint::Graphics;
     }
 
-    VulkanPipeline::VulkanPipeline(VulkanDevice& device, vk::Pipeline pipeline,
+    VulkanPipeline::VulkanPipeline(vk::Device device, vk::Pipeline pipeline,
                                    PipelineBindPoint pipelineType)
-        : device_(&device), pipeline_(pipeline), pipelineType_(pipelineType) {}
+        : device_(device), pipeline_(pipeline), pipelineType_(pipelineType) {}
 
     VulkanPipeline::~VulkanPipeline() noexcept { clear(); }
 
@@ -358,7 +357,7 @@ namespace aetherion {
 
     void VulkanPipeline::clear() noexcept {
         if (pipeline_ && device_) {
-            device_->getVkDevice().destroyPipeline(pipeline_);
+            device_.destroyPipeline(pipeline_);
             pipeline_ = nullptr;
         }
         device_ = nullptr;

@@ -16,7 +16,7 @@ namespace aetherion {
       public:
         VulkanPhysicalDevice() = delete;
         VulkanPhysicalDevice(VulkanDriver& driver, const PhysicalDeviceDescription& description);
-        VulkanPhysicalDevice(VulkanDriver& driver, vkb::PhysicalDevice builderPhysicalDevice,
+        VulkanPhysicalDevice(vk::Instance instance, vkb::PhysicalDevice builderPhysicalDevice,
                              vk::PhysicalDevice physicalDevice);
         virtual ~VulkanPhysicalDevice() noexcept override;
 
@@ -38,20 +38,20 @@ namespace aetherion {
         void release() noexcept;
 
       private:
+        vk::Instance instance_;
+
         vkb::PhysicalDevice builderPhysicalDevice_;
         vk::PhysicalDevice physicalDevice_;
 
         std::unordered_map<uint32_t, QueueFamilyProperties> queueFamilyProperties_;
-
-        VulkanDriver* driver_;
     };
 
     class VulkanDevice : public IRenderDevice {
       public:
         VulkanDevice() = delete;
         VulkanDevice(VulkanDriver& driver, const DeviceDescription& description);
-        VulkanDevice(VulkanDriver& driver, vkb::Device builderDevice, vk::Device device,
-                     vma::Allocator allocator);
+        VulkanDevice(vk::Instance instance, vk::PhysicalDevice physicalDevice,
+                     vkb::Device builderDevice, vk::Device device, vma::Allocator allocator);
         virtual ~VulkanDevice() noexcept override;
 
         VulkanDevice(const VulkanDevice&) = delete;
@@ -63,6 +63,16 @@ namespace aetherion {
 
         virtual std::unique_ptr<ICommandPool> createCommandPool(
             const CommandPoolDescription& description) override;
+
+        virtual std::unique_ptr<ICommandBuffer> allocateCommandBuffer(
+            ICommandPool& pool, const CommandBufferDescription& description) override;
+        virtual std::vector<std::unique_ptr<ICommandBuffer>> allocateCommandBuffers(
+            ICommandPool& pool, uint32_t count,
+            const CommandBufferDescription& description) override;
+
+        virtual void freeCommandBuffers(
+            ICommandPool& pool,
+            std::span<std::reference_wrapper<ICommandBuffer>> commandBuffers) override;
 
         virtual std::unique_ptr<IBuffer> createBuffer(
             const BufferDescription& description) override;
@@ -136,8 +146,8 @@ namespace aetherion {
         void release() noexcept;
 
       private:
-        VulkanDriver* driver_;
-        VulkanPhysicalDevice* physicalDevice_;
+        vk::Instance instance_;
+        vk::PhysicalDevice physicalDevice_;
 
         vma::Allocator allocator_;
 

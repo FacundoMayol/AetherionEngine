@@ -12,7 +12,7 @@ namespace aetherion {
       public:
         VulkanQueue() = delete;
         VulkanQueue(VulkanDevice& device, const QueueDescription& description);
-        VulkanQueue(VulkanDevice& device, vk::Queue queue);
+        VulkanQueue(vk::Device device, vk::Queue queue);
         virtual ~VulkanQueue() noexcept override;
 
         VulkanQueue(const VulkanQueue&) = delete;
@@ -35,7 +35,7 @@ namespace aetherion {
         void release() noexcept;
 
       private:
-        VulkanDevice* device_;
+        vk::Device device_;
 
         vk::Queue queue_;
     };

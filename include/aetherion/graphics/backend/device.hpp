@@ -18,6 +18,7 @@ namespace aetherion {
     class IDescriptorSet;
     class IPushConstantRange;
     class ICommandPool;
+    class ICommandBuffer;
     class IPipelineLayout;
     class IPipeline;
     class IShader;
@@ -29,6 +30,7 @@ namespace aetherion {
     class ISurface;
     class IWindow;
     struct CommandPoolDescription;
+    struct CommandBufferDescription;
     struct BufferDescription;
     struct BufferViewDescription;
     struct ImageDescription;
@@ -145,6 +147,17 @@ namespace aetherion {
 
         virtual std::unique_ptr<ICommandPool> createCommandPool(
             const CommandPoolDescription& description)
+            = 0;
+
+        virtual std::unique_ptr<ICommandBuffer> allocateCommandBuffer(
+            ICommandPool& pool, const CommandBufferDescription& description)
+            = 0;
+        virtual std::vector<std::unique_ptr<ICommandBuffer>> allocateCommandBuffers(
+            ICommandPool& pool, uint32_t count, const CommandBufferDescription& description)
+            = 0;
+
+        virtual void freeCommandBuffers(
+            ICommandPool& pool, std::span<std::reference_wrapper<ICommandBuffer>> commandBuffers)
             = 0;
 
         virtual std::unique_ptr<IBuffer> createBuffer(const BufferDescription& description) = 0;

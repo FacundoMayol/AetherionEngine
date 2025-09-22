@@ -10,18 +10,18 @@
 
 namespace aetherion {
     std::vector<std::unique_ptr<ICommandBuffer>> VulkanCommandBuffer::allocateCommandBuffers(
-        VulkanDevice& device, VulkanCommandPool& commandPool, uint32_t count,
+        vk::Device device, vk::CommandPool commandPool, uint32_t count,
         const CommandBufferDescription& description) {
         std::vector<std::unique_ptr<ICommandBuffer>> commandBuffers;
         commandBuffers.reserve(count);
 
         vk::CommandBufferAllocateInfo allocateInfo
             = vk::CommandBufferAllocateInfo()
-                  .setCommandPool(commandPool.getVkCommandPool())
+                  .setCommandPool(commandPool)
                   .setLevel(toVkCommandBufferLevel(description.level))
                   .setCommandBufferCount(count);
 
-        auto result = device.getVkDevice().allocateCommandBuffers(allocateInfo);
+        auto result = device.allocateCommandBuffers(allocateInfo);
 
         for (const auto& commandBuffer : result) {
             commandBuffers.push_back(
@@ -33,21 +33,26 @@ namespace aetherion {
 
     VulkanCommandBuffer::VulkanCommandBuffer(VulkanDevice& device, VulkanCommandPool& commandPool,
                                              const CommandBufferDescription& description)
-        : device_(&device), commandPool_(&commandPool) {
+        : device_(device.getVkDevice()),
+          commandPool_(commandPool.getVkCommandPool()),
+          shouldFreeCommandBuffer_(commandPool.supportsFreeCommandBuffer()) {
         vk::CommandBufferAllocateInfo allocateInfo
             = vk::CommandBufferAllocateInfo()
-                  .setCommandPool(commandPool_->getVkCommandPool())
+                  .setCommandPool(commandPool_)
                   .setLevel(toVkCommandBufferLevel(description.level))
                   .setCommandBufferCount(1);
 
-        auto result = device_->getVkDevice().allocateCommandBuffers(allocateInfo);
+        auto result = device_.allocateCommandBuffers(allocateInfo);
 
         commandBuffer_ = result.front();
     }
 
-    VulkanCommandBuffer::VulkanCommandBuffer(VulkanDevice& device, VulkanCommandPool& commandPool,
-                                             vk::CommandBuffer commandBuffer)
-        : device_(&device), commandPool_(&commandPool), commandBuffer_(commandBuffer) {}
+    VulkanCommandBuffer::VulkanCommandBuffer(vk::Device device, vk::CommandPool commandPool,
+                                             vk::CommandBuffer commandBuffer, bool shouldFree)
+        : device_(device),
+          commandPool_(commandPool),
+          commandBuffer_(commandBuffer),
+          shouldFreeCommandBuffer_(shouldFree) {}
 
     VulkanCommandBuffer::~VulkanCommandBuffer() noexcept { clear(); }
 
@@ -55,10 +60,12 @@ namespace aetherion {
         : ICommandBuffer(std::move(other)),
           device_(other.device_),
           commandPool_(other.commandPool_),
-          commandBuffer_(other.commandBuffer_) {
+          commandBuffer_(other.commandBuffer_),
+          shouldFreeCommandBuffer_(other.shouldFreeCommandBuffer_) {
         other.device_ = nullptr;
         other.commandPool_ = nullptr;
         other.commandBuffer_ = nullptr;
+        other.shouldFreeCommandBuffer_ = false;
     }
 
     VulkanCommandBuffer& VulkanCommandBuffer::operator=(VulkanCommandBuffer&& other) noexcept {
@@ -69,6 +76,7 @@ namespace aetherion {
             device_ = other.device_;
             commandPool_ = other.commandPool_;
             commandBuffer_ = other.commandBuffer_;
+            shouldFreeCommandBuffer_ = other.shouldFreeCommandBuffer_;
 
             other.release();
         }
@@ -76,35 +84,35 @@ namespace aetherion {
     }
 
     void VulkanCommandBuffer::clear() noexcept {
-        if (commandBuffer_ && device_ && commandPool_
-            && commandPool_->supportsFreeCommandBuffer()) {
-            device_->getVkDevice().freeCommandBuffers(commandPool_->getVkCommandPool(), 1,
-                                                      &commandBuffer_);
+        if (commandBuffer_ && device_ && commandPool_ && shouldFreeCommandBuffer_) {
+            device_.freeCommandBuffers(commandPool_, 1, &commandBuffer_);
             commandBuffer_ = nullptr;
         }
         device_ = nullptr;
         commandPool_ = nullptr;
+        shouldFreeCommandBuffer_ = false;
     }
 
     void VulkanCommandBuffer::release() noexcept {
         commandBuffer_ = nullptr;
         device_ = nullptr;
         commandPool_ = nullptr;
+        shouldFreeCommandBuffer_ = false;
     }
 
     void VulkanCommandBuffer::freeCommandBuffers(
-        VulkanDevice& device, VulkanCommandPool& commandPool,
-        std::span<std::reference_wrapper<ICommandBuffer>> commandBuffers) {
+        vk::Device device, vk::CommandPool commandPool,
+        std::span<std::reference_wrapper<VulkanCommandBuffer>> commandBuffers) {
         std::vector<vk::CommandBuffer> vkCommandBuffers;
         vkCommandBuffers.reserve(commandBuffers.size());
 
         for (const auto& commandBuffer : commandBuffers) {
             auto& vkCommandBuffer = dynamic_cast<VulkanCommandBuffer&>(commandBuffer.get());
             vkCommandBuffers.push_back(vkCommandBuffer.getVkCommandBuffer());
-            vkCommandBuffer.release();
+            commandBuffer.get().release();
         }
 
-        device.getVkDevice().freeCommandBuffers(commandPool.getVkCommandPool(), vkCommandBuffers);
+        device.freeCommandBuffers(commandPool, vkCommandBuffers);
     }
 
     constexpr vk::BufferCopy toVkBufferCopy(const BufferCopyRegion& region) {
@@ -423,19 +431,19 @@ namespace aetherion {
 
     VulkanCommandPool::VulkanCommandPool(VulkanDevice& device,
                                          const CommandPoolDescription& description)
-        : device_(&device) {
-        commandPool_ = device_->getVkDevice().createCommandPool(
-            vk::CommandPoolCreateInfo()
-                .setFlags(toVkCommandPoolCreateFlags(description.flags))
-                .setQueueFamilyIndex(description.queueFamilyIndex));
+        : device_(device.getVkDevice()) {
+        commandPool_
+            = device_.createCommandPool(vk::CommandPoolCreateInfo()
+                                            .setFlags(toVkCommandPoolCreateFlags(description.flags))
+                                            .setQueueFamilyIndex(description.queueFamilyIndex));
 
         freeCommandBufferSupport_
             = description.flags.contains(CommandPoolBehavior::ResetCommandBuffer);
     }
 
-    VulkanCommandPool::VulkanCommandPool(VulkanDevice& device, vk::CommandPool commandPool,
+    VulkanCommandPool::VulkanCommandPool(vk::Device device, vk::CommandPool commandPool,
                                          bool freeCommandBufferSupport)
-        : device_(&device),
+        : device_(device),
           commandPool_(commandPool),
           freeCommandBufferSupport_(freeCommandBufferSupport) {}
 
@@ -467,7 +475,7 @@ namespace aetherion {
 
     void VulkanCommandPool::clear() noexcept {
         if (commandPool_ && device_) {
-            device_->getVkDevice().destroyCommandPool(commandPool_);
+            device_.destroyCommandPool(commandPool_);
             commandPool_ = nullptr;
         }
         device_ = nullptr;
@@ -481,35 +489,8 @@ namespace aetherion {
     }
 
     void VulkanCommandPool::reset(bool releaseResources) {
-        device_->getVkDevice().resetCommandPool(
-            commandPool_, releaseResources ? vk::CommandPoolResetFlagBits::eReleaseResources
-                                           : vk::CommandPoolResetFlags());
-    }
-
-    void VulkanCommandPool::freeCommandBuffers(
-        std::span<std::reference_wrapper<ICommandBuffer>> commandBuffers) {
-        if (!freeCommandBufferSupport_) {
-            throw std::runtime_error(
-                "Command pool does not support freeing individual command buffers.");
-        }
-
-        if (commandBuffers.empty()) {
-            return;
-        }
-
-        if (!device_ || !commandPool_) {
-            throw std::runtime_error("Command pool is not valid.");
-        }
-        VulkanCommandBuffer::freeCommandBuffers(*device_, *this, commandBuffers);
-    }
-
-    std::unique_ptr<ICommandBuffer> VulkanCommandPool::allocateCommandBuffer(
-        const CommandBufferDescription& description) {
-        return std::make_unique<VulkanCommandBuffer>(*device_, *this, description);
-    }
-
-    std::vector<std::unique_ptr<ICommandBuffer>> VulkanCommandPool::allocateCommandBuffers(
-        uint32_t count, const CommandBufferDescription& description) {
-        return VulkanCommandBuffer::allocateCommandBuffers(*device_, *this, count, description);
+        device_.resetCommandPool(commandPool_, releaseResources
+                                                   ? vk::CommandPoolResetFlagBits::eReleaseResources
+                                                   : vk::CommandPoolResetFlags());
     }
 }  // namespace aetherion

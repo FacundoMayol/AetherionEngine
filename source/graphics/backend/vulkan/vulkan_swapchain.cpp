@@ -8,7 +8,7 @@
 #include "vulkan_sync.hpp"
 
 namespace aetherion {
-    void populateSwapchainImages(VulkanDevice& device, vkb::Swapchain swapchain,
+    void populateSwapchainImages(vk::Device device, vkb::Swapchain swapchain,
                                  std::vector<VulkanImage>& wrappedImages) {
         auto vkImagesResult = swapchain.get_images();
 
@@ -23,19 +23,19 @@ namespace aetherion {
         wrappedImages.reserve(vkImages.size());
 
         for (const auto& vkImage : vkImages) {
-            wrappedImages.emplace_back(device, vkImage, nullptr);
+            wrappedImages.emplace_back(device, nullptr, vkImage, nullptr);
         }
     }
 
     VulkanSwapchain::VulkanSwapchain(VulkanDevice& device, const SwapchainDescription& description)
-        : device_(&device) {
+        : device_(device.getVkDevice()) {
         if (!description.surface) {
             throw(std::invalid_argument("A surface is required to create a swapchain."));
         }
         auto vkSurface = dynamic_cast<const VulkanSurface&>(*description.surface).getVkSurface();
 
         const auto& vulkanBuilderSwapchainResult
-            = vkb::SwapchainBuilder(device_->getVkBuilderDevice(), vkSurface)
+            = vkb::SwapchainBuilder(device.getVkBuilderDevice(), vkSurface)
                   .set_desired_min_image_count(description.minImageCount)
                   .set_desired_format(
                       vk::SurfaceFormatKHR(toVkFormat(description.surfaceFormat.imageFormat),
@@ -59,12 +59,12 @@ namespace aetherion {
         builderSwapchain_ = vulkanBuilderSwapchainResult.value();
         swapchain_ = vk::SwapchainKHR(builderSwapchain_.swapchain);
 
-        populateSwapchainImages(device, builderSwapchain_, wrappedImages_);
+        populateSwapchainImages(device_, builderSwapchain_, wrappedImages_);
     }
 
-    VulkanSwapchain::VulkanSwapchain(VulkanDevice& device, vkb::Swapchain swapchain)
-        : device_(&device), builderSwapchain_(swapchain), swapchain_(swapchain.swapchain) {
-        populateSwapchainImages(device, builderSwapchain_, wrappedImages_);
+    VulkanSwapchain::VulkanSwapchain(vk::Device device, vkb::Swapchain swapchain)
+        : device_(device), builderSwapchain_(swapchain), swapchain_(swapchain.swapchain) {
+        populateSwapchainImages(device_, builderSwapchain_, wrappedImages_);
     }
 
     VulkanSwapchain::~VulkanSwapchain() noexcept { clear(); }
@@ -122,7 +122,7 @@ namespace aetherion {
         auto& vkSemaphore = dynamic_cast<VulkanBinarySemaphore&>(semaphore);
         auto& vkFence = dynamic_cast<VulkanFence&>(fence);
 
-        const auto result = device_->getVkDevice().acquireNextImageKHR(
+        const auto result = device_.acquireNextImageKHR(
             swapchain_, timeout, vkSemaphore.getVkSemaphore(), vkFence.getVkFence());
 
         auto resultCode = toSwapchainAcquireResultCode(result.result);

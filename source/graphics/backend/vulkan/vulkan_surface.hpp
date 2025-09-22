@@ -14,7 +14,7 @@ namespace aetherion {
       public:
         VulkanSurface() = delete;
         VulkanSurface(VulkanDriver& driver, const SurfaceDescription& description);
-        VulkanSurface(VulkanDriver& driver, vk::SurfaceKHR surface);
+        VulkanSurface(vk::Instance instance, vk::SurfaceKHR surface);
         virtual ~VulkanSurface() noexcept override;
 
         VulkanSurface(const VulkanSurface&) = delete;
@@ -32,7 +32,7 @@ namespace aetherion {
         void release() noexcept;
 
       private:
-        VulkanDriver* driver_;
+        vk::Instance instance_;
 
         vk::SurfaceKHR surface_;
     };

@@ -10,12 +10,11 @@
 
 namespace aetherion {
     VulkanQueue::VulkanQueue(VulkanDevice& device, const QueueDescription& description)
-        : device_(&device) {
-        queue_ = device_->getVkDevice().getQueue(description.familyIndex, description.index);
+        : device_(device.getVkDevice()) {
+        queue_ = device_.getQueue(description.familyIndex, description.index);
     }
 
-    VulkanQueue::VulkanQueue(VulkanDevice& device, vk::Queue queue)
-        : device_(&device), queue_(queue) {}
+    VulkanQueue::VulkanQueue(vk::Device device, vk::Queue queue) : device_(device), queue_(queue) {}
 
     VulkanQueue::~VulkanQueue() noexcept { clear(); }
 

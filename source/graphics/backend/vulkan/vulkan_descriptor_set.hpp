@@ -15,8 +15,7 @@ namespace aetherion {
         VulkanDescriptorSetLayout() = delete;
         VulkanDescriptorSetLayout(VulkanDevice& device,
                                   const DescriptorSetLayoutDescription& description);
-        VulkanDescriptorSetLayout(VulkanDevice& device,
-                                  vk::DescriptorSetLayout descriptorSetLayout);
+        VulkanDescriptorSetLayout(vk::Device device, vk::DescriptorSetLayout descriptorSetLayout);
         virtual ~VulkanDescriptorSetLayout() noexcept override;
 
         VulkanDescriptorSetLayout(const VulkanDescriptorSetLayout&) = delete;
@@ -33,7 +32,7 @@ namespace aetherion {
         void release() noexcept;
 
       private:
-        VulkanDevice* device_;
+        vk::Device device_;
 
         vk::DescriptorSetLayout descriptorSetLayout_;
     };
@@ -41,14 +40,14 @@ namespace aetherion {
     class VulkanDescriptorSet : public IDescriptorSet {
       public:
         static std::vector<std::unique_ptr<IDescriptorSet>> allocateDescriptorSets(
-            VulkanDevice& device, VulkanDescriptorPool& pool,
+            vk::Device device, vk::DescriptorPool pool,
             std::span<const DescriptorSetDescription> descriptions);
 
         VulkanDescriptorSet() = delete;
         VulkanDescriptorSet(VulkanDevice& device, VulkanDescriptorPool& pool,
                             const DescriptorSetDescription& description);
-        VulkanDescriptorSet(VulkanDevice& device, VulkanDescriptorPool& pool,
-                            vk::DescriptorSet descriptorSet);
+        VulkanDescriptorSet(vk::Device device, vk::DescriptorPool pool,
+                            vk::DescriptorSet descriptorSet, bool shouldFree = false);
         virtual ~VulkanDescriptorSet() noexcept override;
 
         VulkanDescriptorSet(const VulkanDescriptorSet&) = delete;
@@ -58,8 +57,8 @@ namespace aetherion {
         VulkanDescriptorSet& operator=(VulkanDescriptorSet&&) noexcept;
 
         static void freeDescriptorSets(
-            VulkanDevice& device, VulkanDescriptorPool& pool,
-            std::span<std::reference_wrapper<IDescriptorSet>> descriptorSets);
+            vk::Device device, vk::DescriptorPool pool,
+            std::span<std::reference_wrapper<VulkanDescriptorSet>> descriptorSets);
 
         inline vk::DescriptorSet getVkDescriptorSet() const { return descriptorSet_; }
 
@@ -67,17 +66,19 @@ namespace aetherion {
         void release() noexcept;
 
       private:
-        VulkanDevice* device_;
-        VulkanDescriptorPool* pool_;
+        vk::Device device_;
+        vk::DescriptorPool pool_;
 
         vk::DescriptorSet descriptorSet_;
+
+        bool shouldFreeDescriptorSet;
     };
 
     class VulkanDescriptorPool : public IDescriptorPool {
       public:
         VulkanDescriptorPool() = delete;
         VulkanDescriptorPool(VulkanDevice& device, const DescriptorPoolDescription& description);
-        VulkanDescriptorPool(VulkanDevice& device, vk::DescriptorPool descriptorPool,
+        VulkanDescriptorPool(vk::Device device, vk::DescriptorPool descriptorPool,
                              bool freeDescriptorSetSupport);
         virtual ~VulkanDescriptorPool() noexcept override;
 
@@ -97,7 +98,7 @@ namespace aetherion {
         void release() noexcept;
 
       private:
-        VulkanDevice* device_;
+        vk::Device device_;
 
         vk::DescriptorPool descriptorPool_;
 
@@ -109,7 +110,7 @@ namespace aetherion {
         VulkanPushConstantRange() = delete;
         VulkanPushConstantRange(VulkanDevice& device,
                                 const PushConstantRangeDescription& description);
-        VulkanPushConstantRange(VulkanDevice& device, vk::PushConstantRange pushConstantRange);
+        VulkanPushConstantRange(vk::Device device, vk::PushConstantRange pushConstantRange);
         virtual ~VulkanPushConstantRange() noexcept override;
 
         VulkanPushConstantRange(const VulkanPushConstantRange&) = delete;
@@ -124,7 +125,7 @@ namespace aetherion {
         void release() noexcept;
 
       private:
-        VulkanDevice* device_;
+        vk::Device device_;
 
         vk::PushConstantRange pushConstantRange_;
     };

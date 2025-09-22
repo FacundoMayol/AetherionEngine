@@ -13,7 +13,7 @@ namespace aetherion {
       public:
         VulkanBufferView() = delete;
         VulkanBufferView(VulkanDevice& device, const BufferViewDescription& description);
-        VulkanBufferView(VulkanDevice& device, vk::BufferView bufferView);
+        VulkanBufferView(vk::Device device, vk::BufferView bufferView);
         virtual ~VulkanBufferView() noexcept override;
 
         VulkanBufferView(const VulkanBufferView&) = delete;
@@ -28,7 +28,7 @@ namespace aetherion {
         void release() noexcept;
 
       private:
-        VulkanDevice* device_;
+        vk::Device device_;
 
         vk::BufferView bufferView_;
     };

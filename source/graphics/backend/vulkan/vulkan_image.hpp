@@ -13,7 +13,8 @@ namespace aetherion {
       public:
         VulkanImage() = delete;
         VulkanImage(VulkanDevice& device, const ImageDescription& description);
-        VulkanImage(VulkanDevice& device, vk::Image image, vma::Allocation allocation);
+        VulkanImage(vk::Device device, vma::Allocator allocator, vk::Image image,
+                    vma::Allocation allocation);
         virtual ~VulkanImage() noexcept override;
 
         VulkanImage(const VulkanImage&) = delete;
@@ -30,7 +31,8 @@ namespace aetherion {
         void release() noexcept;
 
       private:
-        VulkanDevice* device_;
+        vk::Device device_;
+        vma::Allocator allocator_;
 
         vk::Image image_;
         vma::Allocation allocation_;

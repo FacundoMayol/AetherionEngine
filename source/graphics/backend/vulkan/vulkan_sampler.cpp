@@ -5,8 +5,8 @@
 
 namespace aetherion {
     VulkanSampler::VulkanSampler(VulkanDevice& device, const SamplerDescription& description)
-        : device_(&device) {
-        sampler_ = device_->getVkDevice().createSampler(
+        : device_(device.getVkDevice()) {
+        sampler_ = device_.createSampler(
             vk::SamplerCreateInfo()
                 .setMagFilter(toVkFilter(description.magFilter))
                 .setMinFilter(toVkFilter(description.minFilter))
@@ -25,8 +25,8 @@ namespace aetherion {
                 .setUnnormalizedCoordinates(description.unnormalizedCoordinates));
     }
 
-    VulkanSampler::VulkanSampler(VulkanDevice& device, vk::Sampler sampler)
-        : device_(&device), sampler_(sampler) {}
+    VulkanSampler::VulkanSampler(vk::Device device, vk::Sampler sampler)
+        : device_(device), sampler_(sampler) {}
 
     VulkanSampler::~VulkanSampler() noexcept { clear(); }
 
@@ -51,7 +51,7 @@ namespace aetherion {
 
     void VulkanSampler::clear() noexcept {
         if (sampler_ && device_) {
-            device_->getVkDevice().destroySampler(sampler_);
+            device_.destroySampler(sampler_);
             sampler_ = nullptr;
         }
         device_ = nullptr;

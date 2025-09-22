@@ -7,23 +7,22 @@
 namespace aetherion {
     VulkanBufferView::VulkanBufferView(VulkanDevice& device,
                                        const BufferViewDescription& description)
-        : device_(&device) {
+        : device_(device.getVkDevice()) {
         if (!description.buffer) {
             throw std::invalid_argument("Buffer in BufferViewDescription is null.");
         }
 
         auto& vkBuffer = dynamic_cast<VulkanBuffer&>(*description.buffer);
 
-        bufferView_
-            = device_->getVkDevice().createBufferView(vk::BufferViewCreateInfo()
-                                                          .setBuffer(vkBuffer.getVkBuffer())
-                                                          .setFormat(toVkFormat(description.format))
-                                                          .setOffset(description.offset)
-                                                          .setRange(description.range));
+        bufferView_ = device_.createBufferView(vk::BufferViewCreateInfo()
+                                                   .setBuffer(vkBuffer.getVkBuffer())
+                                                   .setFormat(toVkFormat(description.format))
+                                                   .setOffset(description.offset)
+                                                   .setRange(description.range));
     }
 
-    VulkanBufferView::VulkanBufferView(VulkanDevice& device, vk::BufferView bufferView)
-        : device_(&device), bufferView_(bufferView) {}
+    VulkanBufferView::VulkanBufferView(vk::Device device, vk::BufferView bufferView)
+        : device_(device), bufferView_(bufferView) {}
 
     VulkanBufferView::~VulkanBufferView() noexcept { clear(); }
 
@@ -48,7 +47,7 @@ namespace aetherion {
 
     void VulkanBufferView::clear() noexcept {
         if (bufferView_ && device_) {
-            device_->getVkDevice().destroyBufferView(bufferView_);
+            device_.destroyBufferView(bufferView_);
             bufferView_ = nullptr;
         }
         device_ = nullptr;

@@ -12,7 +12,7 @@ namespace aetherion {
       public:
         VulkanPipelineLayout() = delete;
         VulkanPipelineLayout(VulkanDevice& device, const PipelineLayoutDescription& description);
-        VulkanPipelineLayout(VulkanDevice& device, vk::PipelineLayout pipelineLayout);
+        VulkanPipelineLayout(vk::Device device, vk::PipelineLayout pipelineLayout);
         virtual ~VulkanPipelineLayout() noexcept override;
 
         VulkanPipelineLayout(const VulkanPipelineLayout&) = delete;
@@ -27,7 +27,7 @@ namespace aetherion {
         void release() noexcept;
 
       private:
-        VulkanDevice* device_;
+        vk::Device device_;
 
         vk::PipelineLayout pipelineLayout_;
     };
@@ -37,7 +37,7 @@ namespace aetherion {
         VulkanPipeline() = delete;
         VulkanPipeline(VulkanDevice& device, const ComputePipelineDescription& description);
         VulkanPipeline(VulkanDevice& device, const GraphicsPipelineDescription& description);
-        VulkanPipeline(VulkanDevice& device, vk::Pipeline pipeline, PipelineBindPoint pipelineType);
+        VulkanPipeline(vk::Device device, vk::Pipeline pipeline, PipelineBindPoint pipelineType);
         virtual ~VulkanPipeline() noexcept override;
 
         VulkanPipeline(const VulkanPipeline&) = delete;
@@ -54,7 +54,7 @@ namespace aetherion {
         void release() noexcept;
 
       protected:
-        VulkanDevice* device_;
+        vk::Device device_;
 
         vk::Pipeline pipeline_;
 

@@ -16,7 +16,7 @@ namespace aetherion {
       public:
         VulkanSwapchain() = delete;
         VulkanSwapchain(VulkanDevice& device, const SwapchainDescription& description);
-        VulkanSwapchain(VulkanDevice& device, vkb::Swapchain swapchain);
+        VulkanSwapchain(vk::Device device, vkb::Swapchain swapchain);
         virtual ~VulkanSwapchain() noexcept override;
 
         VulkanSwapchain(const VulkanSwapchain&) = delete;
@@ -38,7 +38,7 @@ namespace aetherion {
         void release() noexcept;
 
       private:
-        VulkanDevice* device_;
+        vk::Device device_;
 
         vkb::Swapchain builderSwapchain_;
         vk::SwapchainKHR swapchain_;

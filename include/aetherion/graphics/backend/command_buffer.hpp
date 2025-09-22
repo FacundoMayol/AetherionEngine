@@ -1,6 +1,5 @@
 #pragma once
 
-#include <memory>
 #include <optional>
 #include <span>
 #include <vector>
@@ -172,18 +171,7 @@ namespace aetherion {
         ICommandPool(const ICommandPool&) = delete;
         ICommandPool& operator=(const ICommandPool&) = delete;
 
-        virtual std::unique_ptr<ICommandBuffer> allocateCommandBuffer(
-            const CommandBufferDescription& description)
-            = 0;
-        virtual std::vector<std::unique_ptr<ICommandBuffer>> allocateCommandBuffers(
-            uint32_t count, const CommandBufferDescription& description)
-            = 0;
-
         virtual void reset(bool releaseResources = false) = 0;
-
-        virtual void freeCommandBuffers(
-            std::span<std::reference_wrapper<ICommandBuffer>> commandBuffers)
-            = 0;
 
       protected:
         ICommandPool() = default;

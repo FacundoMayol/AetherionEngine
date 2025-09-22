@@ -6,17 +6,16 @@
 
 namespace aetherion {
     VulkanFence::VulkanFence(VulkanDevice& device, const GPUFenceDescription& description)
-        : device_(&device) {
+        : device_(device.getVkDevice()) {
         vk::FenceCreateInfo fenceCreateInfo;
         if (description.signaled) {
             fenceCreateInfo.flags = vk::FenceCreateFlagBits::eSignaled;
         }
 
-        fence_ = device_->getVkDevice().createFence(fenceCreateInfo);
+        fence_ = device_.createFence(fenceCreateInfo);
     }
 
-    VulkanFence::VulkanFence(VulkanDevice& device, vk::Fence fence)
-        : device_(&device), fence_(fence) {}
+    VulkanFence::VulkanFence(vk::Device device, vk::Fence fence) : device_(device), fence_(fence) {}
 
     VulkanFence::~VulkanFence() noexcept { clear(); }
 
@@ -41,7 +40,7 @@ namespace aetherion {
 
     void VulkanFence::clear() noexcept {
         if (fence_ && device_) {
-            device_->getVkDevice().destroyFence(fence_);
+            device_.destroyFence(fence_);
             fence_ = nullptr;
         }
         device_ = nullptr;
@@ -53,7 +52,7 @@ namespace aetherion {
     }
 
     void VulkanFence::wait(uint64_t timeout) {
-        auto result = device_->getVkDevice().waitForFences(1, &fence_, VK_TRUE, timeout);
+        auto result = device_.waitForFences(1, &fence_, VK_TRUE, timeout);
 
         if (result == vk::Result::eTimeout) {
             throw(std::runtime_error("Timeout while waiting for fence."));
@@ -64,7 +63,7 @@ namespace aetherion {
     }
 
     void VulkanFence::reset() {
-        auto result = device_->getVkDevice().resetFences(1, &fence_);
+        auto result = device_.resetFences(1, &fence_);
 
         if (result != vk::Result::eSuccess) {
             throw(std::runtime_error(
@@ -73,7 +72,7 @@ namespace aetherion {
     }
 
     bool VulkanFence::isSignaled() const {
-        auto result = device_->getVkDevice().getFenceStatus(fence_);
+        auto result = device_.getFenceStatus(fence_);
 
         if (result == vk::Result::eSuccess) {
             return true;
@@ -87,12 +86,12 @@ namespace aetherion {
 
     VulkanBinarySemaphore::VulkanBinarySemaphore(VulkanDevice& device,
                                                  const GPUBinarySemaphoreDescription& description)
-        : device_(&device) {
-        semaphore_ = device_->getVkDevice().createSemaphore({});
+        : device_(device.getVkDevice()) {
+        semaphore_ = device_.createSemaphore({});
     }
 
-    VulkanBinarySemaphore::VulkanBinarySemaphore(VulkanDevice& device, vk::Semaphore semaphore)
-        : device_(&device), semaphore_(semaphore) {}
+    VulkanBinarySemaphore::VulkanBinarySemaphore(vk::Device device, vk::Semaphore semaphore)
+        : device_(device), semaphore_(semaphore) {}
 
     VulkanBinarySemaphore::~VulkanBinarySemaphore() noexcept { clear(); }
 
@@ -120,7 +119,7 @@ namespace aetherion {
 
     void VulkanBinarySemaphore::clear() noexcept {
         if (semaphore_ && device_) {
-            device_->getVkDevice().destroySemaphore(semaphore_);
+            device_.destroySemaphore(semaphore_);
             semaphore_ = nullptr;
         }
     }
@@ -132,18 +131,18 @@ namespace aetherion {
 
     VulkanTimelineSemaphore::VulkanTimelineSemaphore(
         VulkanDevice& device, const GPUTimelineSemaphoreDescription& description)
-        : device_(&device) {
+        : device_(device.getVkDevice()) {
         auto semaphoreTypeCreateInfo = vk::SemaphoreTypeCreateInfo()
                                            .setSemaphoreType(vk::SemaphoreType::eTimeline)
                                            .setInitialValue(description.initialValue);
 
         auto semaphoreCreateInfo = vk::SemaphoreCreateInfo().setPNext(&semaphoreTypeCreateInfo);
 
-        semaphore_ = device_->getVkDevice().createSemaphore(semaphoreCreateInfo);
+        semaphore_ = device_.createSemaphore(semaphoreCreateInfo);
     }
 
-    VulkanTimelineSemaphore::VulkanTimelineSemaphore(VulkanDevice& device, vk::Semaphore semaphore)
-        : device_(&device), semaphore_(semaphore) {}
+    VulkanTimelineSemaphore::VulkanTimelineSemaphore(vk::Device device, vk::Semaphore semaphore)
+        : device_(device), semaphore_(semaphore) {}
 
     VulkanTimelineSemaphore::~VulkanTimelineSemaphore() noexcept { clear(); }
 
@@ -171,7 +170,7 @@ namespace aetherion {
 
     void VulkanTimelineSemaphore::clear() noexcept {
         if (semaphore_ && device_) {
-            device_->getVkDevice().destroySemaphore(semaphore_);
+            device_.destroySemaphore(semaphore_);
             semaphore_ = nullptr;
         }
     }
@@ -184,7 +183,7 @@ namespace aetherion {
     void VulkanTimelineSemaphore::wait(uint64_t value, uint64_t timeout) {
         auto waitInfo = vk::SemaphoreWaitInfo().setSemaphores(semaphore_).setValues(value);
 
-        auto result = device_->getVkDevice().waitSemaphores(waitInfo, timeout);
+        auto result = device_.waitSemaphores(waitInfo, timeout);
 
         if (result == vk::Result::eTimeout) {
             throw(std::runtime_error("Timeout while waiting for timeline semaphore."));
@@ -195,11 +194,10 @@ namespace aetherion {
     }
 
     void VulkanTimelineSemaphore::signal(uint64_t value) {
-        device_->getVkDevice().signalSemaphore(
-            vk::SemaphoreSignalInfo().setSemaphore(semaphore_).setValue(value));
+        device_.signalSemaphore(vk::SemaphoreSignalInfo().setSemaphore(semaphore_).setValue(value));
     }
 
     uint64_t VulkanTimelineSemaphore::getCurrentValue() const {
-        return device_->getVkDevice().getSemaphoreCounterValue(semaphore_);
+        return device_.getSemaphoreCounterValue(semaphore_);
     }
 }  // namespace aetherion

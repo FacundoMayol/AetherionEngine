@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <vulkan/vulkan.hpp>
 
 #include "aetherion/graphics/backend/command_buffer.hpp"
@@ -12,14 +13,14 @@ namespace aetherion {
     class VulkanCommandBuffer : public ICommandBuffer {
       public:
         static std::vector<std::unique_ptr<ICommandBuffer>> allocateCommandBuffers(
-            VulkanDevice& device, VulkanCommandPool& commandPool, uint32_t count,
+            vk::Device device, vk::CommandPool commandPool, uint32_t count,
             const CommandBufferDescription& description);
 
         VulkanCommandBuffer() = delete;
         VulkanCommandBuffer(VulkanDevice& device, VulkanCommandPool& commandPool,
                             const CommandBufferDescription& description);
-        VulkanCommandBuffer(VulkanDevice& device, VulkanCommandPool& commandPool,
-                            vk::CommandBuffer commandBuffer);
+        VulkanCommandBuffer(vk::Device device, vk::CommandPool commandPool,
+                            vk::CommandBuffer commandBuffer, bool shouldFree = false);
         virtual ~VulkanCommandBuffer() noexcept override;
 
         VulkanCommandBuffer(const VulkanCommandBuffer&) = delete;
@@ -29,8 +30,8 @@ namespace aetherion {
         VulkanCommandBuffer& operator=(VulkanCommandBuffer&&) noexcept;
 
         static void freeCommandBuffers(
-            VulkanDevice& device, VulkanCommandPool& commandPool,
-            std::span<std::reference_wrapper<ICommandBuffer>> commandBuffers);
+            vk::Device device, vk::CommandPool commandPool,
+            std::span<std::reference_wrapper<VulkanCommandBuffer>> commandBuffers);
 
         virtual void begin(CommandBufferUsageFlags flags = CommandBufferUsage::None) override;
         virtual void reset(bool releaseResources = false) override;
@@ -86,17 +87,19 @@ namespace aetherion {
         void release() noexcept;
 
       private:
-        VulkanDevice* device_;
-        VulkanCommandPool* commandPool_;
+        vk::Device device_;
+        vk::CommandPool commandPool_;
 
         vk::CommandBuffer commandBuffer_;
+
+        bool shouldFreeCommandBuffer_;
     };
 
     class VulkanCommandPool : public ICommandPool {
       public:
         VulkanCommandPool() = delete;
         VulkanCommandPool(VulkanDevice& device, const CommandPoolDescription& description);
-        VulkanCommandPool(VulkanDevice& device, vk::CommandPool commandPool,
+        VulkanCommandPool(vk::Device device, vk::CommandPool commandPool,
                           bool freeCommandBufferSupport);
         virtual ~VulkanCommandPool() noexcept override;
 
@@ -106,15 +109,7 @@ namespace aetherion {
         VulkanCommandPool(VulkanCommandPool&&) noexcept;
         VulkanCommandPool& operator=(VulkanCommandPool&&) noexcept;
 
-        virtual std::unique_ptr<ICommandBuffer> allocateCommandBuffer(
-            const CommandBufferDescription& description) override;
-        virtual std::vector<std::unique_ptr<ICommandBuffer>> allocateCommandBuffers(
-            uint32_t count, const CommandBufferDescription& description) override;
-
         virtual void reset(bool releaseResources = false) override;
-
-        virtual void freeCommandBuffers(
-            std::span<std::reference_wrapper<ICommandBuffer>> commandBuffers) override;
 
         inline vk::CommandPool getVkCommandPool() const { return commandPool_; }
 
@@ -124,7 +119,7 @@ namespace aetherion {
         void release() noexcept;
 
       private:
-        VulkanDevice* device_;
+        vk::Device device_;
 
         vk::CommandPool commandPool_;
 

@@ -13,7 +13,8 @@ namespace aetherion {
       public:
         VulkanBuffer() = delete;
         VulkanBuffer(VulkanDevice& device, const BufferDescription& description);
-        VulkanBuffer(VulkanDevice& device, vk::Buffer buffer, vma::Allocation allocation);
+        VulkanBuffer(vk::Device device, vma::Allocator allocator, vk::Buffer buffer,
+                     vma::Allocation allocation);
         virtual ~VulkanBuffer() noexcept override;
 
         VulkanBuffer(const VulkanBuffer&) = delete;
@@ -32,7 +33,8 @@ namespace aetherion {
         void release() noexcept;
 
       private:
-        VulkanDevice* device_;
+        vk::Device device_;
+        vma::Allocator allocator_;
 
         vk::Buffer buffer_;
         vma::Allocation allocation_;

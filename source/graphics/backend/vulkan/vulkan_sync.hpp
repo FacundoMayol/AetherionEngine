@@ -12,7 +12,7 @@ namespace aetherion {
       public:
         VulkanFence() = delete;
         VulkanFence(VulkanDevice& device, const GPUFenceDescription& description);
-        VulkanFence(VulkanDevice& device, vk::Fence fence);
+        VulkanFence(vk::Device, vk::Fence fence);
         virtual ~VulkanFence() noexcept override;
 
         VulkanFence(const VulkanFence&) = delete;
@@ -31,7 +31,7 @@ namespace aetherion {
         void release() noexcept;
 
       private:
-        VulkanDevice* device_;
+        vk::Device device_;
 
         vk::Fence fence_;
     };
@@ -41,7 +41,7 @@ namespace aetherion {
         VulkanBinarySemaphore() = delete;
         VulkanBinarySemaphore(VulkanDevice& device,
                               const GPUBinarySemaphoreDescription& description);
-        VulkanBinarySemaphore(VulkanDevice& device, vk::Semaphore semaphore);
+        VulkanBinarySemaphore(vk::Device, vk::Semaphore semaphore);
         virtual ~VulkanBinarySemaphore() noexcept override;
 
         VulkanBinarySemaphore(const VulkanBinarySemaphore&) = delete;
@@ -56,7 +56,7 @@ namespace aetherion {
         void release() noexcept;
 
       private:
-        VulkanDevice* device_;
+        vk::Device device_;
 
         vk::Semaphore semaphore_;
     };
@@ -66,7 +66,7 @@ namespace aetherion {
         VulkanTimelineSemaphore() = delete;
         VulkanTimelineSemaphore(VulkanDevice& device,
                                 const GPUTimelineSemaphoreDescription& description);
-        VulkanTimelineSemaphore(VulkanDevice& device, vk::Semaphore semaphore);
+        VulkanTimelineSemaphore(vk::Device device, vk::Semaphore semaphore);
         virtual ~VulkanTimelineSemaphore() noexcept override;
 
         VulkanTimelineSemaphore(const VulkanTimelineSemaphore&) = delete;
@@ -85,7 +85,7 @@ namespace aetherion {
         void release() noexcept;
 
       private:
-        VulkanDevice* device_;
+        vk::Device device_;
 
         vk::Semaphore semaphore_;
     };

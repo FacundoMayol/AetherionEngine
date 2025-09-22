@@ -13,7 +13,7 @@ namespace aetherion {
       public:
         VulkanImageView() = delete;
         VulkanImageView(VulkanDevice& device, const ImageViewDescription& description);
-        VulkanImageView(VulkanDevice& device, vk::ImageView imageView);
+        VulkanImageView(vk::Device device, vk::ImageView imageView);
         virtual ~VulkanImageView() noexcept override;
 
         VulkanImageView(const VulkanImageView&) = delete;
@@ -29,7 +29,7 @@ namespace aetherion {
         void release() noexcept;
 
       private:
-        VulkanDevice* device_;
+        vk::Device device_;
 
         vk::ImageView imageView_;
     };

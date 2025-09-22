@@ -5,8 +5,8 @@
 
 namespace aetherion {
     VulkanImage::VulkanImage(VulkanDevice& device, const ImageDescription& description)
-        : device_(&device) {
-        std::tie(image_, allocation_) = device_->getVmaAllocator().createImage(
+        : device_(device.getVkDevice()), allocator_(device.getVmaAllocator()) {
+        std::tie(image_, allocation_) = allocator_.createImage(
             vk::ImageCreateInfo()
                 .setImageType(toVkImageType(description.type))
                 .setFormat(toVkFormat(description.format))
@@ -30,8 +30,9 @@ namespace aetherion {
             vma::AllocationCreateInfo().setUsage(toVmaMemoryUsage(description.memoryUsage)));
     }
 
-    VulkanImage::VulkanImage(VulkanDevice& device, vk::Image image, vma::Allocation allocation)
-        : device_(&device), image_(image), allocation_(allocation) {}
+    VulkanImage::VulkanImage(vk::Device device, vma::Allocator allocator, vk::Image image,
+                             vma::Allocation allocation)
+        : device_(device), allocator_(allocator), image_(image), allocation_(allocation) {}
 
     VulkanImage::~VulkanImage() noexcept { clear(); }
 
@@ -60,17 +61,19 @@ namespace aetherion {
     }
 
     void VulkanImage::clear() noexcept {
-        if (image_ && allocation_ && device_) {
-            device_->getVmaAllocator().destroyImage(image_, allocation_);
+        if (image_ && allocation_ && device_ && allocator_) {
+            allocator_.destroyImage(image_, allocation_);
             image_ = nullptr;
             allocation_ = nullptr;
         }
         device_ = nullptr;
+        allocator_ = nullptr;
     }
 
     void VulkanImage::release() noexcept {
         image_ = nullptr;
         allocation_ = nullptr;
         device_ = nullptr;
+        allocator_ = nullptr;
     }
 }  // namespace aetherion

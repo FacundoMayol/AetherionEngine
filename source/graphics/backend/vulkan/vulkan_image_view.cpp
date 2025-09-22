@@ -6,14 +6,14 @@
 
 namespace aetherion {
     VulkanImageView::VulkanImageView(VulkanDevice& device, const ImageViewDescription& description)
-        : device_(&device) {
+        : device_(device.getVkDevice()) {
         if (!description.image) {
             throw std::invalid_argument("Image in ImageViewDescription is null.");
         }
 
         auto& vkImage = dynamic_cast<VulkanImage&>(*description.image);
 
-        imageView_ = device_->getVkDevice().createImageView(
+        imageView_ = device_.createImageView(
             vk::ImageViewCreateInfo()
                 .setImage(vkImage.getVkImage())
                 .setViewType(toVkImageViewType(description.viewType))
@@ -32,8 +32,8 @@ namespace aetherion {
                         .setLayerCount(description.subresource.range.layerCount)));
     }
 
-    VulkanImageView::VulkanImageView(VulkanDevice& device, vk::ImageView imageView)
-        : device_(&device), imageView_(imageView) {}
+    VulkanImageView::VulkanImageView(vk::Device device, vk::ImageView imageView)
+        : device_(device), imageView_(imageView) {}
 
     VulkanImageView::~VulkanImageView() noexcept { clear(); }
 
@@ -58,7 +58,7 @@ namespace aetherion {
 
     void VulkanImageView::clear() noexcept {
         if (imageView_ && device_) {
-            device_->getVkDevice().destroyImageView(imageView_);
+            device_.destroyImageView(imageView_);
             imageView_ = nullptr;
         }
         device_ = nullptr;

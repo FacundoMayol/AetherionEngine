@@ -37,7 +37,7 @@ namespace aetherion {
 
     VulkanPhysicalDevice::VulkanPhysicalDevice(VulkanDriver& driver,
                                                const PhysicalDeviceDescription& description)
-        : driver_(&driver) {
+        : instance_(driver.getVkInstance()) {
         // Temporal surface creation
 
         if (!description.primaryWindow) {
@@ -46,13 +46,13 @@ namespace aetherion {
         }
 
         const auto& primaryWindow = *description.primaryWindow;
-        vk::SurfaceKHR surface = primaryWindow.createVulkanSurface(driver_->getVkInstance());
+        vk::SurfaceKHR surface = primaryWindow.createVulkanSurface(driver.getVkInstance());
 
         // Physical device selection
 
         // TODO: Allow more customization of the selection process.
         const auto& vkPhysicalDeviceSelectorResult
-            = vkb::PhysicalDeviceSelector(driver_->getVkBuilderInstance())
+            = vkb::PhysicalDeviceSelector(driver.getVkBuilderInstance())
                   .set_surface(surface)
                   .set_minimum_version(1, 3)
                   .add_required_extension(vk::KHRSwapchainExtensionName)
@@ -81,15 +81,15 @@ namespace aetherion {
 
         // Temporary surface destruction
 
-        vkb::destroy_surface(driver_->getVkBuilderInstance(), surface);
+        vkb::destroy_surface(driver.getVkBuilderInstance(), surface);
     }
 
-    VulkanPhysicalDevice::VulkanPhysicalDevice(VulkanDriver& driver,
+    VulkanPhysicalDevice::VulkanPhysicalDevice(vk::Instance instance,
                                                vkb::PhysicalDevice builderPhysicalDevice,
                                                vk::PhysicalDevice physicalDevice)
-        : builderPhysicalDevice_(builderPhysicalDevice),
-          physicalDevice_(physicalDevice),
-          driver_(&driver) {
+        : instance_(instance),
+          builderPhysicalDevice_(builderPhysicalDevice),
+          physicalDevice_(physicalDevice) {
         // Queue family properties
 
         populateQueueFamilyProperties(physicalDevice_, queueFamilyProperties_);
@@ -102,9 +102,9 @@ namespace aetherion {
           builderPhysicalDevice_(std::move(other.builderPhysicalDevice_)),
           physicalDevice_(other.physicalDevice_),
           queueFamilyProperties_(std::move(other.queueFamilyProperties_)),
-          driver_(other.driver_) {
+          instance_(other.instance_) {
         other.physicalDevice_ = nullptr;
-        other.driver_ = nullptr;
+        other.instance_ = nullptr;
     }
 
     VulkanPhysicalDevice& VulkanPhysicalDevice::operator=(VulkanPhysicalDevice&& other) noexcept {
@@ -115,7 +115,7 @@ namespace aetherion {
             builderPhysicalDevice_ = std::move(other.builderPhysicalDevice_);
             physicalDevice_ = other.physicalDevice_;
             queueFamilyProperties_ = std::move(other.queueFamilyProperties_);
-            driver_ = other.driver_;
+            instance_ = other.instance_;
 
             other.release();
         }
@@ -131,7 +131,7 @@ namespace aetherion {
         builderPhysicalDevice_ = {};
         physicalDevice_ = nullptr;
         queueFamilyProperties_.clear();
-        driver_ = nullptr;
+        instance_ = nullptr;
     }
 
     const QueueFamilyProperties& VulkanPhysicalDevice::getQueueFamilyProperties(
@@ -145,7 +145,7 @@ namespace aetherion {
     }
 
     VulkanDevice::VulkanDevice(VulkanDriver& driver, const DeviceDescription& description)
-        : driver_(&driver) {
+        : instance_(driver.getVkInstance()) {
         if (!description.physicalDevice) {
             throw(
                 std::invalid_argument("A physical device is required to create a render device."));
@@ -189,6 +189,7 @@ namespace aetherion {
 
         builderDevice_ = vulkanDeviceBuilderResult.value();
         device_ = vk::Device(builderDevice_.device);
+        physicalDevice_ = physicalDevice.getVkPhysicalDevice();
 
         // Vulkan Memory Allocator
 
@@ -196,13 +197,18 @@ namespace aetherion {
             vma::AllocatorCreateInfo()
                 .setPhysicalDevice(physicalDevice.getVkPhysicalDevice())
                 .setDevice(device_)
-                .setInstance(driver_->getVkInstance())
+                .setInstance(instance_)
                 .setFlags(vma::AllocatorCreateFlagBits::eBufferDeviceAddress));
     }
 
-    VulkanDevice::VulkanDevice(VulkanDriver& driver, vkb::Device builderDevice, vk::Device device,
+    VulkanDevice::VulkanDevice(vk::Instance instance, vk::PhysicalDevice physicalDevice,
+                               vkb::Device builderDevice, vk::Device device,
                                vma::Allocator allocator)
-        : builderDevice_(builderDevice), device_(device), allocator_(allocator), driver_(&driver) {}
+        : instance_(instance),
+          physicalDevice_(physicalDevice),
+          builderDevice_(builderDevice),
+          device_(device),
+          allocator_(allocator) {}
 
     VulkanDevice::~VulkanDevice() noexcept { clear(); }
 
@@ -211,10 +217,12 @@ namespace aetherion {
           allocator_(other.allocator_),
           builderDevice_(std::move(other.builderDevice_)),
           device_(other.device_),
-          driver_(other.driver_) {
+          instance_(other.instance_),
+          physicalDevice_(other.physicalDevice_) {
         other.allocator_ = nullptr;
         other.device_ = nullptr;
-        other.driver_ = nullptr;
+        other.instance_ = nullptr;
+        other.physicalDevice_ = nullptr;
     }
 
     VulkanDevice& VulkanDevice::operator=(VulkanDevice&& other) noexcept {
@@ -225,11 +233,13 @@ namespace aetherion {
             allocator_ = other.allocator_;
             builderDevice_ = std::move(other.builderDevice_);
             device_ = other.device_;
-            driver_ = other.driver_;
+            instance_ = other.instance_;
+            physicalDevice_ = other.physicalDevice_;
 
             other.allocator_ = nullptr;
             other.device_ = nullptr;
-            other.driver_ = nullptr;
+            other.instance_ = nullptr;
+            other.physicalDevice_ = nullptr;
         }
         return *this;
     }
@@ -240,11 +250,12 @@ namespace aetherion {
                 allocator_.destroy();
                 allocator_ = nullptr;
             }
-
             device_.destroy();
+
             device_ = nullptr;
             builderDevice_ = {};
-            driver_ = nullptr;
+            instance_ = nullptr;
+            physicalDevice_ = nullptr;
         }
     }
 
@@ -252,7 +263,8 @@ namespace aetherion {
         allocator_ = nullptr;
         device_ = nullptr;
         builderDevice_ = {};
-        driver_ = nullptr;
+        instance_ = nullptr;
+        physicalDevice_ = nullptr;
     }
 
     void VulkanDevice::waitIdle() { device_.waitIdle(); }
@@ -274,6 +286,43 @@ namespace aetherion {
     std::unique_ptr<ICommandPool> VulkanDevice::createCommandPool(
         const CommandPoolDescription& description) {
         return std::make_unique<VulkanCommandPool>(*this, description);
+    }
+
+    std::unique_ptr<ICommandBuffer> VulkanDevice::allocateCommandBuffer(
+        ICommandPool& pool, const CommandBufferDescription& description) {
+        return std::make_unique<VulkanCommandBuffer>(*this, dynamic_cast<VulkanCommandPool&>(pool),
+                                                     description);
+    }
+
+    std::vector<std::unique_ptr<ICommandBuffer>> VulkanDevice::allocateCommandBuffers(
+        ICommandPool& pool, uint32_t count, const CommandBufferDescription& description) {
+        return VulkanCommandBuffer::allocateCommandBuffers(
+            device_, dynamic_cast<VulkanCommandPool&>(pool).getVkCommandPool(), count, description);
+    }
+
+    void VulkanDevice::freeCommandBuffers(
+        ICommandPool& pool, std::span<std::reference_wrapper<ICommandBuffer>> commandBuffers) {
+        auto& vkPool = dynamic_cast<VulkanCommandPool&>(pool);
+
+        if (!vkPool.supportsFreeCommandBuffer()) {
+            throw std::runtime_error(
+                "Command pool does not support freeing individual command buffers.");
+        }
+
+        if (commandBuffers.empty()) {
+            return;
+        }
+
+        std::vector<std::reference_wrapper<VulkanCommandBuffer>> vkCommandBuffers;
+        vkCommandBuffers.reserve(commandBuffers.size());
+
+        for (const auto& commandBuffer : commandBuffers) {
+            auto& vkCommandBuffer = dynamic_cast<VulkanCommandBuffer&>(commandBuffer.get());
+            vkCommandBuffers.push_back(std::ref(vkCommandBuffer));
+        }
+
+        VulkanCommandBuffer::freeCommandBuffers(device_, vkPool.getVkCommandPool(),
+                                                vkCommandBuffers);
     }
 
     std::unique_ptr<IImage> VulkanDevice::createImage(const ImageDescription& description) {
@@ -350,9 +399,8 @@ namespace aetherion {
 
     std::vector<std::unique_ptr<IDescriptorSet>> VulkanDevice::allocateDescriptorSets(
         IDescriptorPool& pool, std::span<const DescriptorSetDescription> descriptions) {
-        auto& vkPool = dynamic_cast<VulkanDescriptorPool&>(pool);
-
-        return VulkanDescriptorSet::allocateDescriptorSets(*this, vkPool, descriptions);
+        return VulkanDescriptorSet::allocateDescriptorSets(
+            device_, dynamic_cast<VulkanDescriptorPool&>(pool).getVkDescriptorPool(), descriptions);
     }
 
     void VulkanDevice::freeDescriptorSets(
@@ -369,7 +417,16 @@ namespace aetherion {
             return;
         }
 
-        VulkanDescriptorSet::freeDescriptorSets(*this, vkPool, descriptorSets);
+        std::vector<std::reference_wrapper<VulkanDescriptorSet>> vkDescriptorSets;
+        vkDescriptorSets.reserve(descriptorSets.size());
+
+        for (const auto& descriptorSet : descriptorSets) {
+            auto& vkDescriptorSet = dynamic_cast<VulkanDescriptorSet&>(descriptorSet.get());
+            vkDescriptorSets.push_back(std::ref(vkDescriptorSet));
+        }
+
+        VulkanDescriptorSet::freeDescriptorSets(device_, vkPool.getVkDescriptorPool(),
+                                                vkDescriptorSets);
     }
 
     vk::WriteDescriptorSet toVkWriteDescriptorSet(const DescriptorWriteDescription& write) {

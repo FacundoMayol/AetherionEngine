@@ -6,36 +6,36 @@
 
 namespace aetherion {
     VulkanSurface::VulkanSurface(VulkanDriver& driver, const SurfaceDescription& description)
-        : driver_(&driver) {
+        : instance_(driver.getVkInstance()) {
         if (!description.window) {
             throw(std::invalid_argument("A window is required to create a Vulkan surface."));
         }
 
-        surface_ = description.window->createVulkanSurface(driver_->getVkInstance());
+        surface_ = description.window->createVulkanSurface(instance_);
     }
 
-    VulkanSurface::VulkanSurface(VulkanDriver& driver, vk::SurfaceKHR surface)
-        : driver_(&driver), surface_(surface) {}
+    VulkanSurface::VulkanSurface(vk::Instance instance, vk::SurfaceKHR surface)
+        : instance_(instance), surface_(surface) {}
 
     VulkanSurface::~VulkanSurface() noexcept { clear(); }
 
     VulkanSurface::VulkanSurface(VulkanSurface&& other) noexcept
-        : ISurface(std::move(other)), driver_(other.driver_), surface_(other.surface_) {
+        : ISurface(std::move(other)), instance_(other.instance_), surface_(other.surface_) {
         other.surface_ = nullptr;
-        other.driver_ = nullptr;
+        other.instance_ = nullptr;
     }
 
     void VulkanSurface::clear() noexcept {
-        if (surface_ && driver_) {
-            driver_->getVkInstance().destroySurfaceKHR(surface_);
+        if (surface_ && instance_) {
+            instance_.destroySurfaceKHR(surface_);
             surface_ = nullptr;
         }
-        driver_ = nullptr;
+        instance_ = nullptr;
     }
 
     void VulkanSurface::release() noexcept {
         surface_ = nullptr;
-        driver_ = nullptr;
+        instance_ = nullptr;
     }
 
     VulkanSurface& VulkanSurface::operator=(VulkanSurface&& other) noexcept {
@@ -43,7 +43,7 @@ namespace aetherion {
             clear();
 
             ISurface::operator=(std::move(other));
-            driver_ = other.driver_;
+            instance_ = other.instance_;
             surface_ = other.surface_;
 
             other.release();

@@ -4,17 +4,17 @@
 
 namespace aetherion {
     VulkanShader::VulkanShader(VulkanDevice& device, const ShaderDescription& description)
-        : device_(&device) {
+        : device_(device.getVkDevice()) {
         auto shaderModuleCreateInfo
             = vk::ShaderModuleCreateInfo()
                   .setCodeSize(description.code.size())
                   .setPCode(reinterpret_cast<const uint32_t*>(description.code.data()));
 
-        shaderModule_ = device_->getVkDevice().createShaderModule(shaderModuleCreateInfo);
+        shaderModule_ = device_.createShaderModule(shaderModuleCreateInfo);
     }
 
-    VulkanShader::VulkanShader(VulkanDevice& device, vk::ShaderModule shaderModule)
-        : device_(&device), shaderModule_(shaderModule) {}
+    VulkanShader::VulkanShader(vk::Device device, vk::ShaderModule shaderModule)
+        : device_(device), shaderModule_(shaderModule) {}
 
     VulkanShader::~VulkanShader() noexcept { clear(); }
 
@@ -39,7 +39,7 @@ namespace aetherion {
 
     void VulkanShader::clear() noexcept {
         if (shaderModule_ && device_) {
-            device_->getVkDevice().destroyShaderModule(shaderModule_);
+            device_.destroyShaderModule(shaderModule_);
             shaderModule_ = nullptr;
         }
         device_ = nullptr;

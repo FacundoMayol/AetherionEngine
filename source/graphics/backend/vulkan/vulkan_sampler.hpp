@@ -12,7 +12,7 @@ namespace aetherion {
       public:
         VulkanSampler() = delete;
         VulkanSampler(VulkanDevice& device, const SamplerDescription& description);
-        VulkanSampler(VulkanDevice& device, vk::Sampler sampler);
+        VulkanSampler(vk::Device device, vk::Sampler sampler);
         virtual ~VulkanSampler() noexcept override;
 
         VulkanSampler(const VulkanSampler&) = delete;
@@ -27,7 +27,7 @@ namespace aetherion {
         void release() noexcept;
 
       private:
-        VulkanDevice* device_;
+        vk::Device device_;
 
         vk::Sampler sampler_;
     };
