@@ -65,6 +65,21 @@ namespace aetherion {
     }
 
     std::vector<std::unique_ptr<IDescriptorSet>> VulkanDescriptorSet::allocateDescriptorSets(
+        IRenderDevice& device, IDescriptorPool& pool,
+        std::span<const DescriptorSetDescription> descriptions) {
+        return allocateDescriptorSets(
+            dynamic_cast<VulkanDevice&>(device).getVkDevice(),
+            dynamic_cast<VulkanDescriptorPool&>(pool).getVkDescriptorPool(), descriptions);
+    }
+
+    std::vector<std::unique_ptr<IDescriptorSet>> VulkanDescriptorSet::allocateDescriptorSets(
+        VulkanDevice& device, VulkanDescriptorPool& pool,
+        std::span<const DescriptorSetDescription> descriptions) {
+        return allocateDescriptorSets(device.getVkDevice(), pool.getVkDescriptorPool(),
+                                      descriptions);
+    }
+
+    std::vector<std::unique_ptr<IDescriptorSet>> VulkanDescriptorSet::allocateDescriptorSets(
         vk::Device device, vk::DescriptorPool pool,
         std::span<const DescriptorSetDescription> descriptions) {
         std::vector<vk::DescriptorSetLayout> vkLayouts;
@@ -168,7 +183,24 @@ namespace aetherion {
     }
 
     void VulkanDescriptorSet::freeDescriptorSets(
-        vk::Device device, vk::DescriptorPool pool,
+        IRenderDevice& device, IDescriptorPool& pool,
+        std::span<std::reference_wrapper<IDescriptorSet>> descriptorSets) {
+        std::vector<vk::DescriptorSet> vkDescriptorSets;
+        vkDescriptorSets.reserve(descriptorSets.size());
+
+        for (auto& descriptorSet : descriptorSets) {
+            auto& vkDescriptorSet = dynamic_cast<VulkanDescriptorSet&>(descriptorSet.get());
+            vkDescriptorSets.push_back(vkDescriptorSet.getVkDescriptorSet());
+            vkDescriptorSet.release();
+        }
+
+        freeDescriptorSets(dynamic_cast<VulkanDevice&>(device).getVkDevice(),
+                           dynamic_cast<VulkanDescriptorPool&>(pool).getVkDescriptorPool(),
+                           vkDescriptorSets);
+    }
+
+    void VulkanDescriptorSet::freeDescriptorSets(
+        VulkanDevice& device, VulkanDescriptorPool& pool,
         std::span<std::reference_wrapper<VulkanDescriptorSet>> descriptorSets) {
         std::vector<vk::DescriptorSet> vkDescriptorSets;
         vkDescriptorSets.reserve(descriptorSets.size());
@@ -178,7 +210,12 @@ namespace aetherion {
             descriptorSet.get().release();
         }
 
-        device.freeDescriptorSets(pool, vkDescriptorSets);
+        freeDescriptorSets(device.getVkDevice(), pool.getVkDescriptorPool(), vkDescriptorSets);
+    }
+
+    void VulkanDescriptorSet::freeDescriptorSets(vk::Device device, vk::DescriptorPool pool,
+                                                 std::span<vk::DescriptorSet> descriptorSets) {
+        device.freeDescriptorSets(pool, descriptorSets);
     }
 
     VulkanDescriptorPool::VulkanDescriptorPool(VulkanDevice& device,

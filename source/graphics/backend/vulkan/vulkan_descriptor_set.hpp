@@ -7,6 +7,7 @@
 
 namespace aetherion {
     // Forward declarations
+    class IRenderDevice;
     class VulkanDevice;
     class VulkanDescriptorPool;
 
@@ -40,6 +41,12 @@ namespace aetherion {
     class VulkanDescriptorSet : public IDescriptorSet {
       public:
         static std::vector<std::unique_ptr<IDescriptorSet>> allocateDescriptorSets(
+            IRenderDevice& device, IDescriptorPool& pool,
+            std::span<const DescriptorSetDescription> descriptions);
+        static std::vector<std::unique_ptr<IDescriptorSet>> allocateDescriptorSets(
+            VulkanDevice& device, VulkanDescriptorPool& pool,
+            std::span<const DescriptorSetDescription> descriptions);
+        static std::vector<std::unique_ptr<IDescriptorSet>> allocateDescriptorSets(
             vk::Device device, vk::DescriptorPool pool,
             std::span<const DescriptorSetDescription> descriptions);
 
@@ -57,8 +64,13 @@ namespace aetherion {
         VulkanDescriptorSet& operator=(VulkanDescriptorSet&&) noexcept;
 
         static void freeDescriptorSets(
-            vk::Device device, vk::DescriptorPool pool,
+            IRenderDevice& device, IDescriptorPool& pool,
+            std::span<std::reference_wrapper<IDescriptorSet>> descriptorSets);
+        static void freeDescriptorSets(
+            VulkanDevice& device, VulkanDescriptorPool& pool,
             std::span<std::reference_wrapper<VulkanDescriptorSet>> descriptorSets);
+        static void freeDescriptorSets(vk::Device device, vk::DescriptorPool pool,
+                                       std::span<vk::DescriptorSet> descriptorSets);
 
         inline vk::DescriptorSet getVkDescriptorSet() const { return descriptorSet_; }
 

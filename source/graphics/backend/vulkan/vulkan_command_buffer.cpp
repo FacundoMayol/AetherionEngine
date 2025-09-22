@@ -10,6 +10,21 @@
 
 namespace aetherion {
     std::vector<std::unique_ptr<ICommandBuffer>> VulkanCommandBuffer::allocateCommandBuffers(
+        IRenderDevice& device, ICommandPool& commandPool, uint32_t count,
+        const CommandBufferDescription& description) {
+        return VulkanCommandBuffer::allocateCommandBuffers(
+            dynamic_cast<VulkanDevice&>(device), dynamic_cast<VulkanCommandPool&>(commandPool),
+            count, description);
+    }
+
+    std::vector<std::unique_ptr<ICommandBuffer>> VulkanCommandBuffer::allocateCommandBuffers(
+        VulkanDevice& device, VulkanCommandPool& commandPool, uint32_t count,
+        const CommandBufferDescription& description) {
+        return VulkanCommandBuffer::allocateCommandBuffers(
+            device.getVkDevice(), commandPool.getVkCommandPool(), count, description);
+    }
+
+    std::vector<std::unique_ptr<ICommandBuffer>> VulkanCommandBuffer::allocateCommandBuffers(
         vk::Device device, vk::CommandPool commandPool, uint32_t count,
         const CommandBufferDescription& description) {
         std::vector<std::unique_ptr<ICommandBuffer>> commandBuffers;
@@ -101,18 +116,40 @@ namespace aetherion {
     }
 
     void VulkanCommandBuffer::freeCommandBuffers(
-        vk::Device device, vk::CommandPool commandPool,
-        std::span<std::reference_wrapper<VulkanCommandBuffer>> commandBuffers) {
+        IRenderDevice& device, ICommandPool& commandPool,
+        std::span<std::reference_wrapper<ICommandBuffer>> commandBuffers) {
         std::vector<vk::CommandBuffer> vkCommandBuffers;
         vkCommandBuffers.reserve(commandBuffers.size());
 
         for (const auto& commandBuffer : commandBuffers) {
             auto& vkCommandBuffer = dynamic_cast<VulkanCommandBuffer&>(commandBuffer.get());
             vkCommandBuffers.push_back(vkCommandBuffer.getVkCommandBuffer());
+            vkCommandBuffer.release();
+        }
+
+        VulkanCommandBuffer::freeCommandBuffers(
+            dynamic_cast<VulkanDevice&>(device).getVkDevice(),
+            dynamic_cast<VulkanCommandPool&>(commandPool).getVkCommandPool(), vkCommandBuffers);
+    }
+
+    void VulkanCommandBuffer::freeCommandBuffers(
+        VulkanDevice& device, VulkanCommandPool& commandPool,
+        std::span<std::reference_wrapper<VulkanCommandBuffer>> commandBuffers) {
+        std::vector<vk::CommandBuffer> vkCommandBuffers;
+        vkCommandBuffers.reserve(commandBuffers.size());
+
+        for (auto& commandBuffer : commandBuffers) {
+            vkCommandBuffers.push_back(commandBuffer.get().getVkCommandBuffer());
             commandBuffer.get().release();
         }
 
-        device.freeCommandBuffers(commandPool, vkCommandBuffers);
+        VulkanCommandBuffer::freeCommandBuffers(device.getVkDevice(),
+                                                commandPool.getVkCommandPool(), vkCommandBuffers);
+    }
+
+    void VulkanCommandBuffer::freeCommandBuffers(vk::Device device, vk::CommandPool commandPool,
+                                                 std::span<vk::CommandBuffer> commandBuffers) {
+        device.freeCommandBuffers(commandPool, commandBuffers);
     }
 
     constexpr vk::BufferCopy toVkBufferCopy(const BufferCopyRegion& region) {

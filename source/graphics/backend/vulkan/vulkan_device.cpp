@@ -297,32 +297,13 @@ namespace aetherion {
     std::vector<std::unique_ptr<ICommandBuffer>> VulkanDevice::allocateCommandBuffers(
         ICommandPool& pool, uint32_t count, const CommandBufferDescription& description) {
         return VulkanCommandBuffer::allocateCommandBuffers(
-            device_, dynamic_cast<VulkanCommandPool&>(pool).getVkCommandPool(), count, description);
+            *this, dynamic_cast<VulkanCommandPool&>(pool), count, description);
     }
 
     void VulkanDevice::freeCommandBuffers(
         ICommandPool& pool, std::span<std::reference_wrapper<ICommandBuffer>> commandBuffers) {
-        auto& vkPool = dynamic_cast<VulkanCommandPool&>(pool);
-
-        if (!vkPool.supportsFreeCommandBuffer()) {
-            throw std::runtime_error(
-                "Command pool does not support freeing individual command buffers.");
-        }
-
-        if (commandBuffers.empty()) {
-            return;
-        }
-
-        std::vector<std::reference_wrapper<VulkanCommandBuffer>> vkCommandBuffers;
-        vkCommandBuffers.reserve(commandBuffers.size());
-
-        for (const auto& commandBuffer : commandBuffers) {
-            auto& vkCommandBuffer = dynamic_cast<VulkanCommandBuffer&>(commandBuffer.get());
-            vkCommandBuffers.push_back(std::ref(vkCommandBuffer));
-        }
-
-        VulkanCommandBuffer::freeCommandBuffers(device_, vkPool.getVkCommandPool(),
-                                                vkCommandBuffers);
+        VulkanCommandBuffer::freeCommandBuffers(*this, dynamic_cast<VulkanCommandPool&>(pool),
+                                                commandBuffers);
     }
 
     std::unique_ptr<IImage> VulkanDevice::createImage(const ImageDescription& description) {
@@ -400,33 +381,13 @@ namespace aetherion {
     std::vector<std::unique_ptr<IDescriptorSet>> VulkanDevice::allocateDescriptorSets(
         IDescriptorPool& pool, std::span<const DescriptorSetDescription> descriptions) {
         return VulkanDescriptorSet::allocateDescriptorSets(
-            device_, dynamic_cast<VulkanDescriptorPool&>(pool).getVkDescriptorPool(), descriptions);
+            *this, dynamic_cast<VulkanDescriptorPool&>(pool), descriptions);
     }
 
     void VulkanDevice::freeDescriptorSets(
         IDescriptorPool& pool, std::span<std::reference_wrapper<IDescriptorSet>> descriptorSets) {
-        auto& vkPool = dynamic_cast<VulkanDescriptorPool&>(pool);
-
-        if (!vkPool.supportsFreeDescriptorSet()) {
-            throw std::runtime_error(
-                "The provided descriptor pool does not support freeing individual descriptor "
-                "sets.");
-        }
-
-        if (descriptorSets.empty()) {
-            return;
-        }
-
-        std::vector<std::reference_wrapper<VulkanDescriptorSet>> vkDescriptorSets;
-        vkDescriptorSets.reserve(descriptorSets.size());
-
-        for (const auto& descriptorSet : descriptorSets) {
-            auto& vkDescriptorSet = dynamic_cast<VulkanDescriptorSet&>(descriptorSet.get());
-            vkDescriptorSets.push_back(std::ref(vkDescriptorSet));
-        }
-
-        VulkanDescriptorSet::freeDescriptorSets(device_, vkPool.getVkDescriptorPool(),
-                                                vkDescriptorSets);
+        VulkanDescriptorSet::freeDescriptorSets(*this, dynamic_cast<VulkanDescriptorPool&>(pool),
+                                                descriptorSets);
     }
 
     vk::WriteDescriptorSet toVkWriteDescriptorSet(const DescriptorWriteDescription& write) {

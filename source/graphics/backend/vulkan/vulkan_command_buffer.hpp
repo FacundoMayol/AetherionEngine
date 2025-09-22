@@ -7,11 +7,19 @@
 
 namespace aetherion {
     // Forward declarations
+    class IRenderDevice;
+    class IDescriptorPool;
     class VulkanDevice;
     class VulkanCommandPool;
 
     class VulkanCommandBuffer : public ICommandBuffer {
       public:
+        static std::vector<std::unique_ptr<ICommandBuffer>> allocateCommandBuffers(
+            IRenderDevice& device, ICommandPool& commandPool, uint32_t count,
+            const CommandBufferDescription& description);
+        static std::vector<std::unique_ptr<ICommandBuffer>> allocateCommandBuffers(
+            VulkanDevice& device, VulkanCommandPool& commandPool, uint32_t count,
+            const CommandBufferDescription& description);
         static std::vector<std::unique_ptr<ICommandBuffer>> allocateCommandBuffers(
             vk::Device device, vk::CommandPool commandPool, uint32_t count,
             const CommandBufferDescription& description);
@@ -30,8 +38,13 @@ namespace aetherion {
         VulkanCommandBuffer& operator=(VulkanCommandBuffer&&) noexcept;
 
         static void freeCommandBuffers(
-            vk::Device device, vk::CommandPool commandPool,
+            IRenderDevice& device, ICommandPool& commandPool,
+            std::span<std::reference_wrapper<ICommandBuffer>> commandBuffers);
+        static void freeCommandBuffers(
+            VulkanDevice& device, VulkanCommandPool& commandPool,
             std::span<std::reference_wrapper<VulkanCommandBuffer>> commandBuffers);
+        static void freeCommandBuffers(vk::Device device, vk::CommandPool commandPool,
+                                       std::span<vk::CommandBuffer> commandBuffers);
 
         virtual void begin(CommandBufferUsageFlags flags = CommandBufferUsage::None) override;
         virtual void reset(bool releaseResources = false) override;
