@@ -17,7 +17,6 @@ namespace aetherion {
         GPUImageLayout initialLayout = GPUImageLayout::Undefined;
         GPUImageLayout primaryLayout = GPUImageLayout::Undefined;
         GPUImageTiling tiling = GPUImageTiling::Optimal;
-        MemoryUsage memoryUsage = MemoryUsage::PreferGpu;
         GPUImageUsageFlags usages;
         SharingMode sharingMode;
         std::vector<uint32_t> queueFamilies;

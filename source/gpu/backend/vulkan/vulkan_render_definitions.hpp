@@ -196,6 +196,70 @@ namespace aetherion {
 
     // --- Memory ---
 
+    constexpr vma::AllocatorCreateFlagBits toVmaAllocatorFlag(const AllocatorProperty flag) {
+        switch (flag) {
+            case AllocatorProperty::None:
+                return {};
+            case AllocatorProperty::ExternallySynchronized:
+                return vma::AllocatorCreateFlagBits::eExternallySynchronized;
+            default:
+                throw std::invalid_argument("Invalid AllocatorProperty");
+        }
+    }
+
+    constexpr vma::AllocatorCreateFlags toVmaAllocatorFlags(const AllocatorPropertyFlags flags) {
+        vma::AllocatorCreateFlags vmaFlags = {};
+
+        if (flags.contains(AllocatorProperty::ExternallySynchronized)) {
+            vmaFlags |= vma::AllocatorCreateFlagBits::eExternallySynchronized;
+        }
+
+        return vmaFlags;
+    }
+
+    constexpr vma::AllocationCreateFlagBits toVmaAllocationCreateFlag(
+        const AllocationProperty flag) {
+        switch (flag) {
+            case AllocationProperty::None:
+                return {};
+            case AllocationProperty::DedicatedMemory:
+                return vma::AllocationCreateFlagBits::eDedicatedMemory;
+            case AllocationProperty::DoNotAllocate:
+                return vma::AllocationCreateFlagBits::eNeverAllocate;
+            case AllocationProperty::Mapped:
+                return vma::AllocationCreateFlagBits::eMapped;
+            case AllocationProperty::RandomAccess:
+                return vma::AllocationCreateFlagBits::eHostAccessRandom;
+            case AllocationProperty::SequentialAccess:
+                return vma::AllocationCreateFlagBits::eHostAccessSequentialWrite;
+            default:
+                throw std::invalid_argument("Invalid AllocationProperty");
+        }
+    }
+
+    constexpr vma::AllocationCreateFlags toVmaAllocationCreateFlags(
+        const AllocationPropertyFlags flags) {
+        vma::AllocationCreateFlags vmaFlags = {};
+
+        if (flags.contains(AllocationProperty::DedicatedMemory)) {
+            vmaFlags |= vma::AllocationCreateFlagBits::eDedicatedMemory;
+        }
+        if (flags.contains(AllocationProperty::DoNotAllocate)) {
+            vmaFlags |= vma::AllocationCreateFlagBits::eNeverAllocate;
+        }
+        if (flags.contains(AllocationProperty::Mapped)) {
+            vmaFlags |= vma::AllocationCreateFlagBits::eMapped;
+        }
+        if (flags.contains(AllocationProperty::RandomAccess)) {
+            vmaFlags |= vma::AllocationCreateFlagBits::eHostAccessRandom;
+        }
+        if (flags.contains(AllocationProperty::SequentialAccess)) {
+            vmaFlags |= vma::AllocationCreateFlagBits::eHostAccessSequentialWrite;
+        }
+
+        return vmaFlags;
+    }
+
     constexpr vma::MemoryUsage toVmaMemoryUsage(const MemoryUsage usage) {
         switch (usage) {
             case MemoryUsage::PreferCpu:
@@ -209,29 +273,27 @@ namespace aetherion {
         }
     }
 
-    constexpr vma::AllocationCreateFlagBits toVkAllocationCreateFlag(
-        const AllocationAccessType flag) {
+    constexpr vma::PoolCreateFlagBits toVmaAllocatorPoolFlag(const AllocatorPoolProperty flag) {
         switch (flag) {
-            case AllocationAccessType::None:
+            case AllocatorPoolProperty::None:
                 return {};
-            case AllocationAccessType::RandomAccess:
-                return vma::AllocationCreateFlagBits::eHostAccessRandom;
-            case AllocationAccessType::SequentialAccess:
-                return vma::AllocationCreateFlagBits::eHostAccessSequentialWrite;
+            case AllocatorPoolProperty::IgnoreBufferImageGranularity:
+                return vma::PoolCreateFlagBits::eIgnoreBufferImageGranularity;
+            case AllocatorPoolProperty::Linear:
+                return vma::PoolCreateFlagBits::eLinearAlgorithm;
             default:
-                throw std::invalid_argument("Invalid AllocationAccessType");
+                throw std::invalid_argument("Invalid AllocatorPoolProperty");
         }
     }
 
-    constexpr vma::AllocationCreateFlags toVkAllocationCreateFlags(
-        const AllocationAccessTypeFlags flags) {
-        vma::AllocationCreateFlags vmaFlags = {};
+    constexpr vma::PoolCreateFlags toVmaAllocatorPoolFlags(const AllocatorPoolPropertyFlags flags) {
+        vma::PoolCreateFlags vmaFlags = {};
 
-        if (flags.contains(AllocationAccessType::RandomAccess)) {
-            vmaFlags |= vma::AllocationCreateFlagBits::eHostAccessRandom;
+        if (flags.contains(AllocatorPoolProperty::IgnoreBufferImageGranularity)) {
+            vmaFlags |= vma::PoolCreateFlagBits::eIgnoreBufferImageGranularity;
         }
-        if (flags.contains(AllocationAccessType::SequentialAccess)) {
-            vmaFlags |= vma::AllocationCreateFlagBits::eHostAccessSequentialWrite;
+        if (flags.contains(AllocatorPoolProperty::Linear)) {
+            vmaFlags |= vma::PoolCreateFlagBits::eLinearAlgorithm;
         }
 
         return vmaFlags;

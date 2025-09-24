@@ -20,7 +20,7 @@ namespace aetherion {
         VulkanDriver(VulkanDriver&&) noexcept;
         VulkanDriver& operator=(VulkanDriver&&) noexcept;
 
-        std::unique_ptr<IGPUPhysicalDevice> createGPUPhysicalDevice(
+        std::unique_ptr<IGPUPhysicalDevice> createPhysicalDevice(
             const PhysicalGPUDeviceDescription& description) override;
 
         std::unique_ptr<IGPUDevice> createDevice(

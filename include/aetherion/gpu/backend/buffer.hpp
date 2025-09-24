@@ -8,13 +8,9 @@
 namespace aetherion {
     struct GPUBufferDescription {
         size_t size;
-        MemoryUsage memoryUsage;
         GPUBufferUsageFlags usages;
-        AllocationAccessType allocationAccess;
         SharingMode sharingMode;
         std::vector<uint32_t> queueFamilies;
-        bool dedicatedAllocation = false;
-        bool persistentMapping = false;
     };
 
     class IGPUBuffer : public IGPUResource {

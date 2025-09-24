@@ -1,31 +1,36 @@
 #include "vulkan_buffer.hpp"
 
 #include "vulkan_device.hpp"
+#include "vulkan_memory.hpp"
 #include "vulkan_render_definitions.hpp"
 
 namespace aetherion {
     VulkanBuffer::VulkanBuffer(VulkanDevice& device, const GPUBufferDescription& description)
-        : device_(device.getVkDevice()), allocator_(device.getVmaAllocator()) {
-        vma::AllocationCreateFlags allocationFlags
-            = toVkAllocationCreateFlags(description.allocationAccess);
+        : device_(device.getVkDevice()) {
+        buffer_ = device_.createBuffer(vk::BufferCreateInfo()
+                                           .setSize(description.size)
+                                           .setUsage(toVkBufferUsageFlags(description.usages))
+                                           .setSharingMode(toVkSharingMode(description.sharingMode))
+                                           .setQueueFamilyIndices(description.queueFamilies));
+    }
 
-        if (description.dedicatedAllocation) {
-            allocationFlags |= vma::AllocationCreateFlagBits::eDedicatedMemory;
-        }
+    VulkanBuffer::VulkanBuffer(VulkanAllocator& allocator, const GPUBufferDescription& description,
+                               const GPUAllocationDescription& allocationDescription)
+        : device_(allocator.getVkDevice()), allocator_(allocator.getVmaAllocator()) {
+        auto* vkAllocatorPool = dynamic_cast<VulkanAllocatorPool*>(allocationDescription.pool);
 
-        if (description.persistentMapping) {
-            allocationFlags |= vma::AllocationCreateFlagBits::eMapped;
-        }
-
-        std::tie(buffer_, allocation_)
-            = allocator_.createBuffer(vk::BufferCreateInfo()
-                                          .setSize(description.size)
-                                          .setUsage(toVkBufferUsageFlags(description.usages))
-                                          .setSharingMode(toVkSharingMode(description.sharingMode))
-                                          .setQueueFamilyIndices(description.queueFamilies),
-                                      vma::AllocationCreateInfo()
-                                          .setUsage(toVmaMemoryUsage(description.memoryUsage))
-                                          .setFlags(allocationFlags));
+        std::tie(buffer_, allocation_) = allocator_.createBuffer(
+            vk::BufferCreateInfo()
+                .setSize(description.size)
+                .setUsage(toVkBufferUsageFlags(description.usages))
+                .setSharingMode(toVkSharingMode(description.sharingMode))
+                .setQueueFamilyIndices(description.queueFamilies),
+            vma::AllocationCreateInfo()
+                //.setMemoryTypeBits(allocationDescription.memoryTypeBits)
+                .setPool(vkAllocatorPool ? vkAllocatorPool->getVmaPool() : nullptr)
+                .setPriority(allocationDescription.priority)
+                .setUsage(toVmaMemoryUsage(allocationDescription.memoryUsage))
+                .setFlags(toVmaAllocationCreateFlags(allocationDescription.properties)));
     }
 
     VulkanBuffer::VulkanBuffer(vk::Device device, vma::Allocator allocator, vk::Buffer buffer,
@@ -64,11 +69,10 @@ namespace aetherion {
     void VulkanBuffer::clear() noexcept {
         if (buffer_ && allocation_ && device_ && allocator_) {
             allocator_.destroyBuffer(buffer_, allocation_);
-            buffer_ = nullptr;
-            allocation_ = nullptr;
+        } else if (buffer_ && device_) {
+            device_.destroyBuffer(buffer_);
         }
-        device_ = nullptr;
-        allocator_ = nullptr;
+        release();
     }
 
     void VulkanBuffer::release() noexcept {

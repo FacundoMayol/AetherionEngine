@@ -17,9 +17,8 @@ namespace aetherion {
         VulkanGPUPhysicalDevice() = delete;
         VulkanGPUPhysicalDevice(VulkanDriver& driver,
                                 const PhysicalGPUDeviceDescription& description);
-        VulkanGPUPhysicalDevice(vk::Instance instance,
-                                vkb::GPUPhysicalDevice builderGPUPhysicalDevice,
-                                vk::GPUPhysicalDevice physicalDevice);
+        VulkanGPUPhysicalDevice(vk::Instance instance, vkb::PhysicalDevice builderGPUPhysicalDevice,
+                                vk::PhysicalDevice physicalDevice);
         ~VulkanGPUPhysicalDevice() noexcept override;
 
         VulkanGPUPhysicalDevice(const VulkanGPUPhysicalDevice&) = delete;
@@ -31,10 +30,12 @@ namespace aetherion {
         const GPUQueueFamilyProperties& getGPUQueueFamilyProperties(
             uint32_t familyIndex) const override;
 
-        inline vkb::GPUPhysicalDevice getVkBuilderGPUPhysicalDevice() const {
+        inline vk::Instance getVkInstance() const { return instance_; }
+
+        inline vkb::PhysicalDevice getVkBuilderGPUPhysicalDevice() const {
             return builderGPUPhysicalDevice_;
         }
-        inline vk::GPUPhysicalDevice getVkGPUPhysicalDevice() const { return physicalDevice_; }
+        inline vk::PhysicalDevice getVkGPUPhysicalDevice() const { return physicalDevice_; }
 
         void clear() noexcept;
         void release() noexcept;
@@ -42,8 +43,8 @@ namespace aetherion {
       private:
         vk::Instance instance_;
 
-        vkb::GPUPhysicalDevice builderGPUPhysicalDevice_;
-        vk::GPUPhysicalDevice physicalDevice_;
+        vkb::PhysicalDevice builderGPUPhysicalDevice_;
+        vk::PhysicalDevice physicalDevice_;
 
         std::unordered_map<uint32_t, GPUQueueFamilyProperties> queueFamilyProperties_;
     };
@@ -52,7 +53,7 @@ namespace aetherion {
       public:
         VulkanDevice() = delete;
         VulkanDevice(VulkanDriver& driver, const GPUDeviceDescription& description);
-        VulkanDevice(vk::Instance instance, vk::GPUPhysicalDevice physicalDevice,
+        VulkanDevice(vk::Instance instance, vk::PhysicalDevice physicalDevice,
                      vkb::Device builderDevice, vk::Device device, vma::Allocator allocator);
         ~VulkanDevice() noexcept override;
 
@@ -135,6 +136,10 @@ namespace aetherion {
             std::span<const DescriptorWriteDescription> descriptorWrites,
             std::span<const DescriptorCopyDescription> descriptorCopies) override;
 
+        inline vk::Instance getVkInstance() const { return instance_; }
+
+        inline vk::PhysicalDevice getVkPhysicalDevice() const { return physicalDevice_; }
+
         inline vkb::Device getVkBuilderDevice() const { return builderDevice_; }
         inline vk::Device getVkDevice() const { return device_; }
 
@@ -145,7 +150,7 @@ namespace aetherion {
 
       private:
         vk::Instance instance_;
-        vk::GPUPhysicalDevice physicalDevice_;
+        vk::PhysicalDevice physicalDevice_;
 
         vma::Allocator allocator_;
 

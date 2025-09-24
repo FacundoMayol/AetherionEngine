@@ -67,7 +67,8 @@ namespace aetherion {
         bool enableTessellationShader = false;
         bool enableWideLines = false;
         bool enableMultiViewport = false;*/
-        IWindow* primaryWindow;
+        IWindow*
+            primaryWindow;  // NOTE: Leave this as nullptr if doesn't require swapchain support.
     };
 
     struct GPUQueueFamilyDescription {

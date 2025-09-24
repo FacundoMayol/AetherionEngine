@@ -4,6 +4,7 @@
 #include <vulkan/vulkan.hpp>
 
 #include "aetherion/gpu/backend/image.hpp"
+#include "vulkan_memory.hpp"
 
 namespace aetherion {
     // Forward declarations
@@ -13,6 +14,8 @@ namespace aetherion {
       public:
         VulkanImage() = delete;
         VulkanImage(VulkanDevice& device, const GPUImageDescription& description);
+        VulkanImage(VulkanAllocator& allocator, const GPUImageDescription& description,
+                    const GPUAllocationDescription& allocationDescription);
         VulkanImage(vk::Device device, vma::Allocator allocator, vk::Image image,
                     vma::Allocation allocation);
         ~VulkanImage() noexcept override;

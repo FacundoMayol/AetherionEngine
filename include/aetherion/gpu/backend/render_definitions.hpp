@@ -67,14 +67,29 @@ namespace aetherion {
 
     // --- Memory ---
 
+    enum class AllocatorProperty : FlagType { None = 0, ExternallySynchronized = 1 << 0 };
+    DECLARE_FLAG_ENUM(AllocatorProperty)
+
+    constexpr size_t NO_HEAP_SIZE_LIMIT = 0;
+
+    enum class AllocationProperty : FlagType {
+        None = 0,
+        DedicatedMemory = 1 << 0,
+        DoNotAllocate = 1 << 1,
+        Mapped = 1 << 2,
+        RandomAccess = 1 << 3,
+        SequentialAccess = 1 << 4
+    };
+    DECLARE_FLAG_ENUM(AllocationProperty)
+
     enum class MemoryUsage { PreferGpu, PreferCpu, Auto };
 
-    enum class AllocationAccessType : FlagType {
+    enum class AllocatorPoolProperty : FlagType {
         None = 0,
-        RandomAccess = 1 << 0,
-        SequentialAccess = 1 << 1
+        IgnoreBufferImageGranularity = 1 << 0,
+        Linear = 1 << 1
     };
-    DECLARE_FLAG_ENUM(AllocationAccessType)
+    DECLARE_FLAG_ENUM(AllocatorPoolProperty)
 
     // --- Command & Pipeline ---
 

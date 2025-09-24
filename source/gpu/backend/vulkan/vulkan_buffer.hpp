@@ -4,15 +4,19 @@
 #include <vulkan/vulkan.hpp>
 
 #include "aetherion/gpu/backend/buffer.hpp"
+#include "aetherion/gpu/backend/memory.hpp"
 
 namespace aetherion {
     // Forward declarations
     class VulkanDevice;
+    class VulkanAllocator;
 
     class VulkanBuffer : public IGPUBuffer {
       public:
         VulkanBuffer() = delete;
         VulkanBuffer(VulkanDevice& device, const GPUBufferDescription& description);
+        VulkanBuffer(VulkanAllocator& allocator, const GPUBufferDescription& description,
+                     const GPUAllocationDescription& allocationDescription);
         VulkanBuffer(vk::Device device, vma::Allocator allocator, vk::Buffer buffer,
                      vma::Allocation allocation);
         ~VulkanBuffer() noexcept override;

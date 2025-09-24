@@ -31,7 +31,7 @@ namespace aetherion {
         IGPUDriver(const IGPUDriver&) = delete;
         IGPUDriver& operator=(const IGPUDriver&) = delete;
 
-        virtual std::unique_ptr<IGPUPhysicalDevice> createGPUPhysicalDevice(
+        virtual std::unique_ptr<IGPUPhysicalDevice> createPhysicalDevice(
             const PhysicalGPUDeviceDescription& description)
             = 0;
 

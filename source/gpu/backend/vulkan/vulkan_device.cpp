@@ -22,9 +22,9 @@
 
 namespace aetherion {
     void populateGPUQueueFamilyProperties(
-        vk::GPUPhysicalDevice physicalDevice,
+        vk::PhysicalDevice physicalDevice,
         std::unordered_map<uint32_t, GPUQueueFamilyProperties>& queueFamilyProperties) {
-        const auto& vkGPUQueueFamilyProperties = physicalDevice.getGPUQueueFamilyProperties();
+        const auto& vkGPUQueueFamilyProperties = physicalDevice.getQueueFamilyProperties();
 
         for (size_t i = 0; i < vkGPUQueueFamilyProperties.size(); ++i) {
             const auto& vulkanProperties = vkGPUQueueFamilyProperties[i];
@@ -52,16 +52,16 @@ namespace aetherion {
 
         // TODO: Allow more customization of the selection process.
         const auto& vkGPUPhysicalDeviceSelectorResult
-            = vkb::GPUPhysicalDeviceSelector(driver.getVkBuilderInstance())
+            = vkb::PhysicalDeviceSelector(driver.getVkBuilderInstance())
                   .set_surface(surface)
                   .set_minimum_version(1, 3)
                   .add_required_extension(vk::KHRSwapchainExtensionName)
-                  .set_required_features(vk::GPUPhysicalDeviceFeatures()
+                  .set_required_features(vk::PhysicalDeviceFeatures()
                                              .setSamplerAnisotropy(vk::True)
                                              .setFillModeNonSolid(vk::True))
                   .set_required_features_12(
-                      vk::GPUPhysicalDeviceVulkan12Features().setBufferDeviceAddress(vk::True))
-                  .set_required_features_13(vk::GPUPhysicalDeviceVulkan13Features()
+                      vk::PhysicalDeviceVulkan12Features().setBufferDeviceAddress(vk::True))
+                  .set_required_features_13(vk::PhysicalDeviceVulkan13Features()
                                                 .setDynamicRendering(vk::True)
                                                 .setSynchronization2(vk::True))
                   .select();
@@ -73,7 +73,7 @@ namespace aetherion {
         }
 
         builderGPUPhysicalDevice_ = vkGPUPhysicalDeviceSelectorResult.value();
-        physicalDevice_ = vk::GPUPhysicalDevice(builderGPUPhysicalDevice_.physical_device);
+        physicalDevice_ = vk::PhysicalDevice(builderGPUPhysicalDevice_.physical_device);
 
         // Queue family properties
 
@@ -84,9 +84,9 @@ namespace aetherion {
         vkb::destroy_surface(driver.getVkBuilderInstance(), surface);
     }
 
-    VulkanGPUPhysicalDevice::VulkanGPUPhysicalDevice(
-        vk::Instance instance, vkb::GPUPhysicalDevice builderGPUPhysicalDevice,
-        vk::GPUPhysicalDevice physicalDevice)
+    VulkanGPUPhysicalDevice::VulkanGPUPhysicalDevice(vk::Instance instance,
+                                                     vkb::PhysicalDevice builderGPUPhysicalDevice,
+                                                     vk::PhysicalDevice physicalDevice)
         : instance_(instance),
           builderGPUPhysicalDevice_(builderGPUPhysicalDevice),
           physicalDevice_(physicalDevice) {
@@ -196,13 +196,13 @@ namespace aetherion {
 
         allocator_ = vma::createAllocator(
             vma::AllocatorCreateInfo()
-                .setGPUPhysicalDevice(physicalDevice.getVkGPUPhysicalDevice())
+                .setPhysicalDevice(physicalDevice.getVkGPUPhysicalDevice())
                 .setDevice(device_)
                 .setInstance(instance_)
                 .setFlags(vma::AllocatorCreateFlagBits::eBufferDeviceAddress));
     }
 
-    VulkanDevice::VulkanDevice(vk::Instance instance, vk::GPUPhysicalDevice physicalDevice,
+    VulkanDevice::VulkanDevice(vk::Instance instance, vk::PhysicalDevice physicalDevice,
                                vkb::Device builderDevice, vk::Device device,
                                vma::Allocator allocator)
         : instance_(instance),
